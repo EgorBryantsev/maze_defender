@@ -13,5 +13,6 @@ public class MazeDefenderGame {
         window.add(gamePanel);
 
         window.setVisible(true);
+        // gamePanel.startGame();
     }
 }

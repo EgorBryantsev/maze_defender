@@ -1,6 +1,6 @@
-import java.awt.Color;
-import java.awt.Graphics;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
 public class GamePanel extends JPanel {
     private final int gridSize = 10;
