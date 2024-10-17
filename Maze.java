@@ -1,8 +1,13 @@
 import java.util.Random;
 
 public class Maze {
-    private static final int ROWS = 20;
-    private static final int COLS = 40;
+    public static final int ROWS = 20;
+    public static final int COLS = 40;
+    public static final int WALL = 1;
+    public static final int PATH = 0;
+    public static final int START = 2;
+    public static final int END = 3;
+    public static final int BUILDING = 4;
     private int[][] maze;
     private int panelWidth;
     private int panelHeight;
@@ -22,7 +27,7 @@ public class Maze {
         // Initialize all tiles to walls
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                maze[row][col] = 1;  // 1 represents a wall
+                maze[row][col] = WALL;  // 1 represents a wall
             }
         }
 
@@ -44,34 +49,36 @@ public class Maze {
 
             // Random walk to carve a path to the last column
             for (int col = 1; col < COLS - 1; col++) {
-                maze[currentRow][col] = 0;  // Carve a path
+                maze[currentRow][col] = PATH;  // Carve a path
                 // Randomly decide to move up, down, or stay in the same row
                 int move = rand.nextInt(3);  // 0: up, 1: same, 2: down
                 if (move == 0 && currentRow > 0) {
                     currentRow --;  // Move up 1
-                    if (maze[currentRow][col - 1] == 1) {
+                    if (maze[currentRow][col - 1] == WALL) {
                         checkBorders(currentRow, col);
                         if (currentRow > 1){
                             currentRow --;
                             checkBorders(currentRow, col);
                         }
-                    } else if (maze[currentRow][col - 1] == 0) {
+                    } else if (maze[currentRow][col - 1] == PATH) {
                         currentRow += 1;
                     }
                 } else if (move == 2 && currentRow < ROWS - 1) {
                     currentRow ++;  // Move down 1
-                    if (maze[currentRow][col - 1] == 1) {
+                    if (maze[currentRow][col - 1] == WALL) {
                         checkBorders(currentRow, col);
                         if (currentRow < ROWS - 2) {
                             currentRow ++;
                             checkBorders(currentRow, col);
                         }
-                    } else if (maze[currentRow][col - 1] == 0) {
+                    } else if (maze[currentRow][col - 1] == PATH) {
                         currentRow -= 1;
                     }
                 } else if (move == 1 && col < COLS-1) {
                     checkBorders(currentRow, col);
                 }
+
+                // Handle backward steps with a small probability
                 int back = rand.nextInt(10);
                 int stepsBack = rand.nextInt(3) + 1;
                 if (back == 0 && col > stepsBack + 1) {
@@ -79,55 +86,64 @@ public class Maze {
                         col --;
                         checkBorders(currentRow, col);
                     }
-
                 }
             }
         }
+
+        // clean maze
         for (int x = 0; x < COLS; x ++) {
             for (int y = 0; y < ROWS; y ++) {
                 checkSquare(x, y);
             }
         }
+
+        // Set the start and end points
+        setStartAndEnd();
+    }
+
+    private void setStartAndEnd() {
+        Random rand = new Random();
         int k = 0;
         while (k < 1) {
             int m = rand.nextInt(ROWS);
-            if (maze[m][1] == 0) {
-                maze[m][0] = 2;
-                k ++;
+            if (maze[m][1] == PATH) {
+                maze[m][0] = START;
+                k++;
             }
         }
+
         k = 0;
         while (k < 1) {
             int m = rand.nextInt(ROWS);
-            if (maze[m][COLS - 2] == 0) {
-                maze[m][COLS - 1] = 3;
-                k ++;
+            if (maze[m][COLS - 2] == PATH) {
+                maze[m][COLS - 1] = END;
+                k++;
             }
         }
     }
 
     private void checkBorders(int randomRow, int randomCol) {
-        maze[randomRow][randomCol] = 0;
+        maze[randomRow][randomCol] = PATH;
     }
 
     private void checkSquare(int x, int y) {
-        boolean up = (y > 0) && (maze[y - 1][x] == 0);
-        boolean down = (y < ROWS - 1) && (maze[y + 1][x] == 0);
-        boolean left = (x > 0) && (maze[y][x - 1] == 0);
-        boolean right = (x < COLS - 1) && (maze[y][x + 1] == 0);
+        boolean up = (y > 0) && (maze[y - 1][x] == PATH);
+        boolean down = (y < ROWS - 1) && (maze[y + 1][x] == PATH);
+        boolean left = (x > 0) && (maze[y][x - 1] == PATH);
+        boolean right = (x < COLS - 1) && (maze[y][x + 1] == PATH);
 
-        boolean upLeft = (y > 0 && x > 0) && (maze[y - 1][x - 1] == 0);
-        boolean downLeft = (y < ROWS - 1 && x > 0) && (maze[y + 1][x - 1] == 0);
-        boolean upRight = (y > 0 && x < COLS - 1) && (maze[y - 1][x + 1] == 0);
-        boolean downRight = (y < ROWS - 1 && x < COLS - 1) && (maze[y + 1][x + 1] == 0);
+        boolean upLeft = (y > 0 && x > 0) && (maze[y - 1][x - 1] == PATH);
+        boolean downLeft = (y < ROWS - 1 && x > 0) && (maze[y + 1][x - 1] == PATH);
+        boolean upRight = (y > 0 && x < COLS - 1) && (maze[y - 1][x + 1] == PATH);
+        boolean downRight = (y < ROWS - 1 && x < COLS - 1) && (maze[y + 1][x + 1] == PATH);
 
-        if (maze[y][x] == 0) {
+        if (maze[y][x] == PATH) {
             if ((up && down) && (left && right) && (upLeft && downLeft) && (upRight && downRight)) {
-                maze[y][x] = 1;
+                maze[y][x] = WALL;
             } else if ((down) && left && right && downLeft && downRight) {
-                maze[y][x] = 1;
+                maze[y][x] = WALL;
             } else if (up && down && right && upRight && downRight) {
-                maze[y][x] = 1;
+                maze[y][x] = WALL;
             }
         }
     }
@@ -136,8 +152,9 @@ public class Maze {
     private void placeGraySquares() {
         Random rand = new Random();
         int squaresPlaced = 0;
+        int maxSquares = 10;
 
-        while (squaresPlaced < 10) {
+        while (squaresPlaced < maxSquares) {
             int row = rand.nextInt(ROWS - 1);
             int col = rand.nextInt(COLS - 1);
 
@@ -145,12 +162,13 @@ public class Maze {
             if (maze[row][col] == 1 && maze[row + 1][col] == 1 &&
                     maze[row][col + 1] == 1 && maze[row + 1][col + 1] == 1 &&
                     connectToPath(row, col)) {
+                //maybe make this into a separate function
 
                 // Place a 2x2 square of gray tiles (4)
-                maze[row][col] = 4;
-                maze[row + 1][col] = 4;
-                maze[row][col + 1] = 4;
-                maze[row + 1][col + 1] = 4;
+                maze[row][col] = BUILDING;
+                maze[row + 1][col] = BUILDING;
+                maze[row][col + 1] = BUILDING;
+                maze[row + 1][col + 1] = BUILDING;
 
                 squaresPlaced++;
             }
@@ -167,4 +185,13 @@ public class Maze {
         }
         return false;
     }
+
+    // Getters for maze data
+    public int getCell(int row, int col) {
+        return maze[row][col];
+    }
+    public int[][] getMazeGrid() {
+        return maze;
+    }
+
 }
