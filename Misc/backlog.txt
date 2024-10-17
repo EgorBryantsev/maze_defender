@@ -1,0 +1,37 @@
+1. Using Git for Collaboration
+How to Demo: Demonstrate the ability to create and merge branches, handle pull requests, and resolve conflicts.
+Notes: The project repository should have a clear commit history.
+
+2. Maze Generation
+How to Demo: When you run the game, a maze-like map will be randomly generated consisting out of at least one route from the start to the end, with walls blocking ways.
+    There should also be (randomly located) 2x2 tiles for towers to be built on.
+Notes: The maze should have at least one spawn-tile for the enemies, and one end-tile for the enemies. If enemies reach end, player loses. Towers are not built when game starts,
+    player must do this himself.
+
+3. A* Pathfinding
+How to Demo: Using pathfinding, enemies will find their way through the (each time) randomly generated maze to the end of the maze.
+Notes: The pathfinding needs to find the shortest route possible to the end of the maze.
+
+4. Tower Placement
+How to Demo: The towers can be placed (by the player) on the randomly pre-chosen spots for towers to be built on.
+Notes: Ensure towers can only be placed on 2x2 tiles, designated for towerbuilts and only one of the multiple towers that can be chosen from will be built on the tiles.
+
+5. Enemy Waves
+How to Demo: Enemies spawn on their spawn-tile. Each time a wave starts a certain amount of enemies spawns, differing in difficulty. Once all enemies of that wave are defeated, the wave is over.
+Notes: Based on a "points" system a different amount of enemies with different difficulty will summon each wave. These points will exponantially grow. Thus, so does the difficulty.
+
+6. Tower Attacks
+How to Demo: Enemies that come into range of the towers should be shot at and get removed.
+Notes: Include basic attack animation (e.g., bullets).
+
+7. Rounds
+How to Demo: Defeat all enemies to progress to the next round. Earn money at the end of every round.
+Notes: The reward should be the same as the difficulty of the round.
+
+8. Upgrading Towers
+How to Demo: Towers should be able to be upgraded to increase various attributes.
+Notes: The player should be able to click on towers to upgrade them, and changes should be visible.
+
+9. Game Over Condition
+How to Demo: If enemies reach the end, show a "Game Over" screen.
+Notes: Make sure this ends the game.
