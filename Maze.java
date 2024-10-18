@@ -8,17 +8,18 @@ public class Maze {
     public static final int START = 2;
     public static final int END = 3;
     public static final int BUILDING = 4;
-    private int[][] maze;
-    private int panelWidth;
-    private int panelHeight;
-    private int tileSize;
-    private int pathStarts;
+    public int[][] maze;
+    public int panelWidth;
+    public int panelHeight;
+    public int tileSize;
+    public int pathStarts;
 
     // Constructor
     public Maze() {
         maze = new int[ROWS][COLS];
         generateMaze();
         placeGraySquares();  // Place 2x2 gray squares after generating the maze
+        //addMouseListener(new buildingClicked());
     }
 
     // Generate a maze where initially the entire grid is walls (1)
@@ -55,10 +56,10 @@ public class Maze {
                 if (move == 0 && currentRow > 0) {
                     currentRow --;  // Move up 1
                     if (maze[currentRow][col - 1] == WALL) {
-                        checkBorders(currentRow, col);
+                        makePath(currentRow, col);
                         if (currentRow > 1){
                             currentRow --;
-                            checkBorders(currentRow, col);
+                            makePath(currentRow, col);
                         }
                     } else if (maze[currentRow][col - 1] == PATH) {
                         currentRow += 1;
@@ -66,16 +67,16 @@ public class Maze {
                 } else if (move == 2 && currentRow < ROWS - 1) {
                     currentRow ++;  // Move down 1
                     if (maze[currentRow][col - 1] == WALL) {
-                        checkBorders(currentRow, col);
+                        makePath(currentRow, col);
                         if (currentRow < ROWS - 2) {
                             currentRow ++;
-                            checkBorders(currentRow, col);
+                            makePath(currentRow, col);
                         }
                     } else if (maze[currentRow][col - 1] == PATH) {
                         currentRow -= 1;
                     }
                 } else if (move == 1 && col < COLS-1) {
-                    checkBorders(currentRow, col);
+                    makePath(currentRow, col);
                 }
 
                 // Handle backward steps with a small probability
@@ -84,7 +85,7 @@ public class Maze {
                 if (back == 0 && col > stepsBack + 1) {
                     for (int i = 0; i <= stepsBack; i ++) {
                         col --;
-                        checkBorders(currentRow, col);
+                        makePath(currentRow, col);
                     }
                 }
             }
@@ -122,7 +123,7 @@ public class Maze {
         }
     }
 
-    private void checkBorders(int randomRow, int randomCol) {
+    private void makePath(int randomRow, int randomCol) {
         maze[randomRow][randomCol] = PATH;
     }
 
