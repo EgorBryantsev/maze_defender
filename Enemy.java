@@ -2,7 +2,7 @@ public class Enemy {
     private int x, y; //location
     private int hp; //health
     private double speed;
-    private List<point> path; //for A*
+    //private List<point> path; //for A*
     private int points; //for A*
 
     public void move() {
@@ -14,8 +14,7 @@ public class Enemy {
     }
 
     public boolean isAlive() {
-        //enemy dead
-        return health > 0;
+        return hp > 0;
     }
 
     //gettrs

@@ -8,7 +8,7 @@ public class Maze {
     public static final int START = 2;
     public static final int END = 3;
     public static final int BUILDING = 4;
-    public int[][] maze;
+    public static int[][] maze;
     public int panelWidth;
     public int panelHeight;
     public int tileSize;
