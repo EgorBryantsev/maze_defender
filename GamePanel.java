@@ -1,5 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel {
@@ -8,6 +10,7 @@ public class GamePanel extends JPanel {
     public int panelWidth;
     public int panelHeight;
     public int calculatedTileSize;
+    private Image buidlingUpgrade;
 
     // Constructor
     public GamePanel() {
@@ -17,6 +20,7 @@ public class GamePanel extends JPanel {
         // Add mouse listener for tower clicks
         Tower tower = new Tower(this);
         this.addMouseListener(tower.new BuildingClicked());
+        buidlingUpgrade = new ImageIcon("upgrade-svgrepo-com.png").getImage();
     }
 
     private void updateSize() {
@@ -51,6 +55,8 @@ public class GamePanel extends JPanel {
                         break;
                     case Maze.BUILDING:
                         g.setColor(Color.GRAY);
+                        // g.drawImage(buildingImage, xOffset + col * calculatedTileSize, yOffset + row * calculatedTileSize, calculatedTileSize, calculatedTileSize, this);
+                        
                         break;
                     default:
                     switch (Maze.maze[row][col]) {
