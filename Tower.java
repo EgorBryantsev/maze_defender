@@ -2,6 +2,10 @@ import java.awt.event.*;
 
 public class Tower {
     private GamePanel gamePanel;
+    public int speed;
+    public int damage;
+    public int range;
+    public static int towerLevel = 0;
 
     // Constructor to receive GamePanel reference
     public Tower(GamePanel gamePanel) {
@@ -20,6 +24,12 @@ public class Tower {
                 gamePanel.repaint();  // Repaint after updating the building state
             }
         }
+    }
+
+    public void upgradeTower(int towerLevel) {
+        speed = towerLevel*towerLevel;
+        range = 5*towerLevel;
+        damage = towerLevel*towerLevel/2;
     }
 
     private boolean isBuilding(int row, int col) {
