@@ -61,13 +61,22 @@ public class GamePanel extends JPanel {
                     default:
                     switch (Maze.maze[row][col]) {
                         case 5:
-                            g.setColor(Color.RED);
+                            g.setColor(Color.CYAN);
+                            Tower.towerLevel ++;
                             break;
                         case 6:
-                            g.setColor(Color.ORANGE);
+                            g.setColor(Color.YELLOW);
+                            Tower.towerLevel ++;
                             break;
+                        case 9:
+                            Maze.maze[row][col] = 8;
                         case 7:
-                            g.setColor(Color.CYAN);
+                            g.setColor(Color.ORANGE);
+                            Tower.towerLevel ++;
+                            break;
+                        case 8:
+                            g.setColor(Color.RED);
+                            Tower.towerLevel ++;
                             break;
                         default:
                             break;
