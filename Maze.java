@@ -45,7 +45,7 @@ public class Maze {
                 }
             }
         }
-        return null; // Or throw an exception if not found
+        return null;
     }
 
     public int[] getEndPosition() {
@@ -56,8 +56,16 @@ public class Maze {
                 }
             }
         }
-        return null; // Or throw an exception if not found
+        return null;
     }
+
+    public boolean isWalkable(int row, int col) {
+        if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+            return maze[row][col] == PATH || maze[row][col] == START || maze[row][col] == END;
+        }
+        return false; // Return false if the indices are out of bounds
+    }
+
 
     private void createPath(int startRow, int startCol) {
         Random rand = new Random();
