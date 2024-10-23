@@ -37,6 +37,28 @@ public class Maze {
         createPath(startRow, 1);
     }
 
+    public int[] getStartPosition() {
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+                if (maze[row][col] == START) {
+                    return new int[] { row, col };
+                }
+            }
+        }
+        return null; // Or throw an exception if not found
+    }
+
+    public int[] getEndPosition() {
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+                if (maze[row][col] == END) {
+                    return new int[] { row, col };
+                }
+            }
+        }
+        return null; // Or throw an exception if not found
+    }
+
     private void createPath(int startRow, int startCol) {
         Random rand = new Random();
         for (int x = 1; x <= pathStarts + 1; x ++) {
