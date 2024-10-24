@@ -1,51 +1,70 @@
-import java.awt.event.*;
+import java.awt.*;
+import java.util.List;
 
 public class Tower {
+    public static final int BASE_COST = 100;
     private GamePanel gamePanel;
-    public int speed;
-    public int damage;
-    public int range;
-    public static int towerLevel = 0;
+    private int row;
+    private int col;
+    private int damage;
+    private int range;
+    private int level;
+    private long lastShotTime;
+    private long shootInterval;
 
-    // Constructor to receive GamePanel reference
-    public Tower(GamePanel gamePanel) {
+    public Tower(GamePanel gamePanel, int row, int col) {
         this.gamePanel = gamePanel;
+        this.row = row;
+        this.col = col;
+        this.damage = 10;
+        this.range = 100;
+        this.level = 1;
+        this.lastShotTime = 0;
+        this.shootInterval = 1_000_000_000; // 1 second
     }
 
-    public class BuildingClicked extends MouseAdapter {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            // Calculate the column and row based on click position
-            int col = (e.getX() - (gamePanel.getWidth() - gamePanel.panelWidth) / 2) / gamePanel.calculatedTileSize;
-            int row = (e.getY() - (gamePanel.getHeight() - gamePanel.panelHeight) / 2) / gamePanel.calculatedTileSize;
-            
-            if (isBuilding(row, col)) {
-                buildingNewLevel(row, col);
-                gamePanel.repaint();  // Repaint after updating the building state
+    public void update(long currentTime) {
+        if (currentTime - lastShotTime >= shootInterval) {
+            Enemy target = findTarget();
+            if (target != null) {
+                shoot(target);
+                lastShotTime = currentTime;
             }
         }
     }
 
-    public void upgradeTower(int towerLevel) {
-        speed = towerLevel*towerLevel;
-        range = 5*towerLevel;
-        damage = towerLevel*towerLevel/2;
+    private Enemy findTarget() {
+        for (Enemy enemy : gamePanel.enemies) {
+            double distance = calculateDistance(enemy);
+            if (distance <= range) {
+                return enemy;
+            }
+        }
+        return null;
     }
 
-    private boolean isBuilding(int row, int col) {
-        return row >= 0 && col >= 0 &&
-                row < Maze.ROWS - 1 && col < Maze.COLS - 1 &&
-                Maze.maze[row][col] >= 4 && Maze.maze[row][col] == Maze.maze[row + 1][col] &&
-                Maze.maze[row][col] == Maze.maze[row][col + 1] && Maze.maze[row + 1][col + 1] == Maze.maze[row][col];
+    private double calculateDistance(Enemy enemy) {
+        int towerX = col;
+        int towerY = row;
+        int enemyX = enemy.getX();
+        int enemyY = enemy.getY();
+        return Math.sqrt(Math.pow(towerX - enemyX, 2) + Math.pow(towerY - enemyY, 2)) * gamePanel.calculatedTileSize;
     }
 
-    private void buildingNewLevel(int row, int col) {
-        int newState = Maze.maze[row][col] + 1;
-        if (newState > 7) newState = 8;
+    private void shoot(Enemy target) {
+        int towerPixelX = gamePanel.xOffset + (col * gamePanel.calculatedTileSize) + gamePanel.calculatedTileSize / 2;
+        int towerPixelY = gamePanel.yOffset + (row * gamePanel.calculatedTileSize) + gamePanel.calculatedTileSize / 2;
+        int targetPixelX = gamePanel.xOffset + (target.getX() * gamePanel.calculatedTileSize) + gamePanel.calculatedTileSize / 2;
+        int targetPixelY = gamePanel.yOffset + (target.getY() * gamePanel.calculatedTileSize) + gamePanel.calculatedTileSize / 2;
+        Projectile projectile = new Projectile(towerPixelX, towerPixelY, targetPixelX, targetPixelY, 5, damage);
+        gamePanel.projectiles.add(projectile);
+    }
 
-        Maze.maze[row][col] = newState;
-        Maze.maze[row + 1][col] = newState;
-        Maze.maze[row][col + 1] = newState;
-        Maze.maze[row + 1][col + 1] = newState;
+    public void draw(Graphics g, int tileSize, int xOffset, int yOffset) {
+        int pixelX = xOffset + col * tileSize;
+        int pixelY = yOffset + row * tileSize;
+
+        g.setColor(Color.BLUE);
+        g.fillRect(pixelX, pixelY, tileSize, tileSize);
     }
 }

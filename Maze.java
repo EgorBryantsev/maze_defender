@@ -193,7 +193,11 @@ public class Maze {
     public int[][] getMazeGrid() {
         return maze;
     }
-    
+
+    public void setCell(int row, int col, int value) {
+        maze[row][col] = value;
+    }
+
     public int[] getStartPosition() {
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {

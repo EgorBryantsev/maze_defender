@@ -1,13 +1,12 @@
-import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.*;
 
 public class Projectile {
-    private int x, y; // Position of the bullet
-    private int speed; // Speed of the bullet
-    private int damage; // Damage of the bullet
-    private int targetX, targetY; // Coordinates of the enemy target
+    private double x, y;
+    private double speed;
+    private int damage;
+    private double targetX, targetY;
 
-    public Projectile(int x, int y, int targetX, int targetY, int speed, int damage) {
+    public Projectile(double x, double y, double targetX, double targetY, double speed, int damage) {
         this.x = x;
         this.y = y;
         this.targetX = targetX;
@@ -17,24 +16,24 @@ public class Projectile {
     }
 
     public void move() {
-        // Calculate direction towards target
-        int dx = targetX - x;
-        int dy = targetY - y;
+        double dx = targetX - x;
+        double dy = targetY - y;
         double distance = Math.sqrt(dx * dx + dy * dy);
-
-        // Normalize and move towards the target
-        x += (int) (speed * dx / distance);
-        y += (int) (speed * dy / distance);
+        if (distance == 0) return;
+        x += (dx / distance) * speed;
+        y += (dy / distance) * speed;
     }
 
     public void draw(Graphics g) {
         g.setColor(Color.YELLOW);
-        g.fillOval(x, y, 5, 5); // Draw bullet as a small yellow circle
+        g.fillOval((int) x, (int) y, 5, 5);
     }
 
-    public boolean hitTarget() {
-        // Check if the bullet has reached the target (simple proximity check)
-        return Math.abs(x - targetX) < 5 && Math.abs(y - targetY) < 5;
+    public boolean hitTarget(Enemy enemy) {
+        double enemyPixelX = enemy.getX() * GamePanel.calculatedTileSize + GamePanel.xOffset + GamePanel.calculatedTileSize / 2;
+        double enemyPixelY = enemy.getY() * GamePanel.calculatedTileSize + GamePanel.yOffset + GamePanel.calculatedTileSize / 2;
+        double distance = Math.sqrt(Math.pow(x - enemyPixelX, 2) + Math.pow(y - enemyPixelY, 2));
+        return distance < 5;
     }
 
     public int getDamage() {

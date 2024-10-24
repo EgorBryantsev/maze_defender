@@ -1,131 +1,55 @@
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.Timer;
-import java.util.ArrayList;
-import java.util.Iterator;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
 import java.util.List;
+import javax.swing.Timer; // Correct Timer import
 
-public class GamePanel extends JPanel {
-    private final int tileSize = 25; // Adjust tile size as needed
+public class GamePanel extends JPanel implements ActionListener, KeyListener {
+    private final int DELAY = 16; // Approximately 60 FPS
+    private Timer gameTimer;  // javax.swing.Timer
     private Maze maze;
-    public int panelWidth;
-    public int panelHeight;
-    public int calculatedTileSize;
-    private Image buidlingUpgrade;
-    private List<Enemy> enemies; // List to manage active enemies
-    private Pathfinder pathfinder; // To get the path
-    private final int DELAY = 16;
-    private int xOffset;
-    private int yOffset;
-    private boolean initialEnemiesSpawned = false;
+    public Pathfinder pathfinder;
+    public GameState gameState;
+    public List<Enemy> enemies;
+    private List<Tower> towers;
+    public List<Projectile> projectiles;
+    private int panelWidth;
+    private int panelHeight;
+    public static int calculatedTileSize;
+    public static int xOffset;
+    public static int yOffset;
+    private GameStateEnum currentState;
 
-    // Add Clock instance
-    private Clock gameClock;
-    private Timer gameTimer;
-    private GameState gameState;
-
-    // Constructor
     public GamePanel() {
         this.setBackground(Color.DARK_GRAY);
-        maze = new Maze(); // Initialize the maze
+        this.setFocusable(true);
+        this.addKeyListener(this);
+        this.addMouseListener(new MouseHandler());
 
-        gameState = new GameState();
-
-        gameTimer = new Timer(DELAY, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateGameState();  // Update the game state and clock
-            }
-        });
-
-        // Start the timer
-        gameTimer.start();
-
-        // Initialize the clock at position (10, 10), width 100, height 40, and alarm time of 30 seconds
-        gameClock = new Clock(10, 10, 100, 40, 10);
-        gameClock.start();
-
-        //enemies
-        enemies = new ArrayList<>();
+        maze = new Maze();
         pathfinder = new Pathfinder(maze);
+        gameState = new GameState();
+        enemies = new ArrayList<>();
+        towers = new ArrayList<>();
+        projectiles = new ArrayList<>();
+        currentState = GameStateEnum.MENU;
 
-        updateSize();
-        int[][] pathArray = pathfinder.findPath();
-        if (pathArray != null) {
-            // Convert pathArray to List<int[]>
-            List<int[]> path = new ArrayList<>();
-            for (int[] cell : pathArray) {
-                path.add(cell);
-            }
-        }
-
-        // Add mouse listener for tower clicks
-        Tower tower = new Tower(this);
-        this.addMouseListener(tower.new BuildingClicked());
-
-        // Add mouse listener for clock clicks (keep this if you want both click and spacebar reset)
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (gameClock.tijdIsOm) {
-                    int mouseX = e.getX();
-                    int mouseY = e.getY();
-                    int[] bounds = gameClock.getBounds();
-                    if (mouseX >= bounds[0] && mouseX <= (bounds[0] + bounds[2]) &&
-                        mouseY >= bounds[1] && mouseY <= (bounds[1] + bounds[3])) {
-                        gameClock.reset();
-                        gameClock.start();
-                    }
-                }
-            }
-        });
-
-        // Add key listener for spacebar to start a new wave
-        this.setFocusable(true); // Make sure the panel can receive key events
-        this.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SPACE && gameClock.tijdIsOm) {
-                    // Reset and start a new wave when spacebar is pressed
-                    gameClock.reset();
-                    gameClock.start();
-                }
-            }
-        });
-
-        buidlingUpgrade = new ImageIcon("upgrade-svgrepo-com.png").getImage();
+        gameTimer = new Timer(DELAY, this);  // Correct Timer usage
     }
 
-    // Method to spawn an enemy
-    public void spawnEnemy(List<int[]> path, int xOffset, int yOffset) {
-        double speed = 2.0;
-        int hp = 100;
-        int points = 3;
-        int tileSize = calculatedTileSize;
-        Enemy enemy = new Enemy(path, speed, hp, points);
-        enemies.add(enemy);
+    private void startGame() {
+        currentState = GameStateEnum.PLAYING;
+        gameTimer.start();
     }
 
-    /**
-     * Update the panel size based on the current window size.
-     */
     private void updateSize() {
-        panelWidth = (int) (getWidth() * 0.9);  // 90% of window width
-        panelHeight = (int) (getHeight() * 0.8);  // 90% of window height  
-        calculatedTileSize = Math.min(panelWidth / Maze.COLS, panelHeight / Maze.ROWS);  // Adjust tile size
+        panelWidth = (int) (getWidth() * 0.8);
+        panelHeight = (int) (getHeight() * 0.8);
+        calculatedTileSize = Math.min(panelWidth / Maze.COLS, panelHeight / Maze.ROWS);
 
-        this.xOffset = (getWidth() - panelWidth) / 2;
-        this.yOffset = (getHeight() - panelHeight) / 2;
+        xOffset = (getWidth() - (Maze.COLS * calculatedTileSize)) / 2;
+        yOffset = (getHeight() - (Maze.ROWS * calculatedTileSize)) / 2;
     }
 
     @Override
@@ -133,7 +57,36 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         updateSize();
 
-        // Render the maze
+        switch (currentState) {
+            case MENU:
+                drawMenu(g);
+                break;
+            case PLAYING:
+                drawGame(g);
+                break;
+            case PAUSED:
+                drawGame(g);
+                drawPausedOverlay(g);
+                break;
+            case GAME_OVER:
+                drawGameOver(g);
+                break;
+            case VICTORY:
+                drawVictory(g);
+                break;
+        }
+    }
+
+    private void drawMenu(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 36));
+        g.drawString("Tower Defense Game", getWidth() / 2 - 200, getHeight() / 2 - 50);
+        g.setFont(new Font("Arial", Font.PLAIN, 24));
+        g.drawString("Press ENTER to Start", getWidth() / 2 - 100, getHeight() / 2);
+    }
+
+    private void drawGame(Graphics g) {
+        // Draw Maze
         for (int row = 0; row < Maze.ROWS; row++) {
             for (int col = 0; col < Maze.COLS; col++) {
                 int cell = maze.getCell(row, col);
@@ -148,40 +101,24 @@ public class GamePanel extends JPanel {
                         g.setColor(Color.GREEN);
                         break;
                     case Maze.END:
-                        g.setColor(Color.YELLOW);
+                        g.setColor(Color.RED);
                         break;
-                    case Maze.BUILDING:
-                        g.setColor(Color.GRAY);
+                    case Maze.MAIN_BUILDING:
+                        g.setColor(Color.BLUE);
                         break;
                     default:
-                        switch (Maze.maze[row][col]) {
-                            case 5:
-                                g.setColor(Color.CYAN);
-                                Tower.towerLevel++;
-                                break;
-                            case 6:
-                                g.setColor(Color.YELLOW);
-                                Tower.towerLevel++;
-                                break;
-                            case 9:
-                                Maze.maze[row][col] = 8;
-                            case 7:
-                                g.setColor(Color.ORANGE);
-                                Tower.towerLevel++;
-                                break;
-                            case 8:
-                                g.setColor(Color.RED);
-                                Tower.towerLevel++;
-                                break;
-                            default:
-                                break;
-                        }
+                        g.setColor(Color.PINK);
                         break;
                 }
                 g.fillRect(xOffset + col * calculatedTileSize, yOffset + row * calculatedTileSize, calculatedTileSize, calculatedTileSize);
-                g.setColor(Color.LIGHT_GRAY);  // Grid lines
+                g.setColor(Color.LIGHT_GRAY);
                 g.drawRect(xOffset + col * calculatedTileSize, yOffset + row * calculatedTileSize, calculatedTileSize, calculatedTileSize);
             }
+        }
+
+        // Draw Towers
+        for (Tower tower : towers) {
+            tower.draw(g, calculatedTileSize, xOffset, yOffset);
         }
 
         // Draw Enemies
@@ -189,54 +126,165 @@ public class GamePanel extends JPanel {
             enemy.draw(g, calculatedTileSize, xOffset, yOffset);
         }
 
-        // Draw the clock
-        Graphics2D g2d = (Graphics2D) g;
-        gameClock.teken(g2d);  // Call the Clock's teken method to draw it
-        //gameState.teken(g2d);
+        // Draw Projectiles
+        for (Projectile projectile : projectiles) {
+            projectile.draw(g);
+        }
 
+        // Draw HUD
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 16));
+        g.drawString("Money: $" + gameState.money, 10, 20);
+        g.drawString("Lives: " + gameState.lives, 10, 40);
+        g.drawString("Wave: " + gameState.currentWave, 10, 60);
     }
 
-    /**
-     * This method should be called repeatedly, perhaps in the game loop.
-     * It updates the game state and repaints the panel.
-     */
-    public void updateGameState() {
-        updateSize();
-        gameClock.beweeg(1.0f);  // Update the clock's state
+    private void drawPausedOverlay(Graphics g) {
+        g.setColor(new Color(0, 0, 0, 150));
+        g.fillRect(0, 0, getWidth(), getHeight());
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 36));
+        g.drawString("Paused", getWidth() / 2 - 80, getHeight() / 2);
+    }
+
+    private void drawGameOver(Graphics g) {
+        drawGame(g);
+        g.setColor(new Color(0, 0, 0, 150));
+        g.fillRect(0, 0, getWidth(), getHeight());
+        g.setColor(Color.RED);
+        g.setFont(new Font("Arial", Font.BOLD, 36));
+        g.drawString("Game Over", getWidth() / 2 - 100, getHeight() / 2);
+    }
+
+    private void drawVictory(Graphics g) {
+        drawGame(g);
+        g.setColor(new Color(0, 0, 0, 150));
+        g.fillRect(0, 0, getWidth(), getHeight());
+        g.setColor(Color.GREEN);
+        g.setFont(new Font("Arial", Font.BOLD, 36));
+        g.drawString("You Win!", getWidth() / 2 - 80, getHeight() / 2);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (currentState == GameStateEnum.PLAYING) {
+            updateGameState();
+            repaint();
+        }
+    }
+
+    private void updateGameState() {
         double deltaTime = DELAY / 1000.0; // Convert milliseconds to seconds
+        long currentTime = System.nanoTime();
 
-        if (!initialEnemiesSpawned && getWidth() > 0 && getHeight() > 0) {
-            // Now we can safely spawn the enemies
-            int[][] pathArray = pathfinder.findPath();
-            if (pathArray != null) {
-                // Convert pathArray to List<int[]>
-                List<int[]> path = new ArrayList<>();
-                for (int[] cell : pathArray) {
-                    path.add(cell);
-                }
-                // Spawn an enemy for demonstration
-                spawnEnemy(path, xOffset, yOffset);
-                initialEnemiesSpawned = true;
-            }
+        gameState.update(currentTime, this);
+
+        // Update Towers
+        for (Tower tower : towers) {
+            tower.update(currentTime);
         }
 
-        Iterator<Enemy> iterator = enemies.iterator();
-        while (iterator.hasNext()) {
-            Enemy enemy = iterator.next();
+        // Update Enemies
+        Iterator<Enemy> enemyIterator = enemies.iterator();
+        while (enemyIterator.hasNext()) {
+            Enemy enemy = enemyIterator.next();
             enemy.move(deltaTime);
-
             if (!enemy.isAlive()) {
-                // Enemy is dead, award points
                 gameState.money += enemy.getPoints();
-                iterator.remove();
+                enemyIterator.remove();
             } else if (enemy.hasReachedEnd()) {
-                // Enemy reached the end, handle accordingly
-                // For example, reduce player lives or money
-                System.out.println("Enemy reached the end!");
-                iterator.remove();
+                gameState.lives--;
+                enemyIterator.remove();
+                if (gameState.lives <= 0) {
+                    currentState = GameStateEnum.GAME_OVER;
+                    gameTimer.stop();
+                }
             }
         }
 
-        repaint();  // Trigger a repaint to reflect changes
+        // Update Projectiles
+        Iterator<Projectile> projIterator = projectiles.iterator();
+        while (projIterator.hasNext()) {
+            Projectile projectile = projIterator.next();
+            projectile.move();
+            boolean hit = false;
+            for (Enemy enemy : enemies) {
+                if (projectile.hitTarget(enemy)) {
+                    enemy.takeDamage(projectile.getDamage());
+                    hit = true;
+                    break;
+                }
+            }
+            if (hit) {
+                projIterator.remove();
+            }
+        }
+
+        // Check for victory condition
+        if (gameState.isVictory()) {
+            currentState = GameStateEnum.VICTORY;
+            gameTimer.stop();
+        }
+    }
+
+    private class MouseHandler extends MouseAdapter {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (currentState == GameStateEnum.PLAYING) {
+                int col = (e.getX() - xOffset) / calculatedTileSize;
+                int row = (e.getY() - yOffset) / calculatedTileSize;
+
+                if (isValidPlacement(row, col)) {
+                    if (gameState.money >= Tower.BASE_COST) {
+                        Tower tower = new Tower(GamePanel.this, row, col);
+                        towers.add(tower);
+                        gameState.money -= Tower.BASE_COST;
+                        maze.setCell(row, col, Maze.BUILDING);
+                        repaint();
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isValidPlacement(int row, int col) {
+        return row >= 0 && col >= 0 &&
+                row < Maze.ROWS && col < Maze.COLS &&
+                maze.getCell(row, col) == Maze.BUILDING;
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (currentState == GameStateEnum.MENU && e.getKeyCode() == KeyEvent.VK_ENTER) {
+            startGame();
+        } else if (currentState == GameStateEnum.PLAYING && e.getKeyCode() == KeyEvent.VK_P) {
+            currentState = GameStateEnum.PAUSED;
+            gameTimer.stop();
+        } else if (currentState == GameStateEnum.PAUSED && e.getKeyCode() == KeyEvent.VK_P) {
+            currentState = GameStateEnum.PLAYING;
+            gameTimer.start();
+        } else if (currentState == GameStateEnum.GAME_OVER && e.getKeyCode() == KeyEvent.VK_ENTER) {
+            // Restart the game
+            maze = new Maze();
+            pathfinder = new Pathfinder(maze);
+            gameState = new GameState();
+            enemies.clear();
+            towers.clear();
+            projectiles.clear();
+            currentState = GameStateEnum.PLAYING;
+            gameTimer.start();
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+    }
+
+    public Pathfinder getPathfinder() {
+        return pathfinder;
     }
 }
