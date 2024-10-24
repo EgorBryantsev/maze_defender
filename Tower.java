@@ -33,9 +33,10 @@ public class Tower {
     }
 
     private boolean isBuilding(int row, int col) {
-        return row < Maze.ROWS - 1 && col < Maze.COLS - 1 &&
-            Maze.maze[row][col] >= 4 && Maze.maze[row][col] == Maze.maze[row + 1][col] &&
-            Maze.maze[row][col] == Maze.maze[row][col + 1] && Maze.maze[row][col] == Maze.maze[row + 1][col + 1];
+        return row >= 0 && col >= 0 &&
+                row < Maze.ROWS - 1 && col < Maze.COLS - 1 &&
+                Maze.maze[row][col] >= 4 && Maze.maze[row][col] == Maze.maze[row + 1][col] &&
+                Maze.maze[row][col] == Maze.maze[row][col + 1] && Maze.maze[row + 1][col + 1] == Maze.maze[row][col];
     }
 
     private void buildingNewLevel(int row, int col) {
