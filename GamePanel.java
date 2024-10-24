@@ -25,6 +25,9 @@ public class GamePanel extends JPanel {
     private List<Enemy> enemies; // List to manage active enemies
     private Pathfinder pathfinder; // To get the path
     private final int DELAY = 16;
+    private int xOffset;
+    private int yOffset;
+    private boolean initialEnemiesSpawned = false;
 
     // Add Clock instance
     private Clock gameClock;
@@ -38,7 +41,7 @@ public class GamePanel extends JPanel {
 
         gameState = new GameState();
 
-        gameTimer = new Timer(1000, new ActionListener() {
+        gameTimer = new Timer(DELAY, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateGameState();  // Update the game state and clock
@@ -50,12 +53,13 @@ public class GamePanel extends JPanel {
 
         // Initialize the clock at position (10, 10), width 100, height 40, and alarm time of 30 seconds
         gameClock = new Clock(10, 10, 100, 40, 10);
-        gameClock.start(); 
+        gameClock.start();
 
         //enemies
         enemies = new ArrayList<>();
         pathfinder = new Pathfinder(maze);
 
+        updateSize();
         int[][] pathArray = pathfinder.findPath();
         if (pathArray != null) {
             // Convert pathArray to List<int[]>
@@ -63,8 +67,6 @@ public class GamePanel extends JPanel {
             for (int[] cell : pathArray) {
                 path.add(cell);
             }
-            // Spawn an enemy for demonstration
-            spawnEnemy(path);
         }
 
         // Add mouse listener for tower clicks
@@ -105,7 +107,7 @@ public class GamePanel extends JPanel {
     }
 
     // Method to spawn an enemy
-    public void spawnEnemy(List<int[]> path) {
+    public void spawnEnemy(List<int[]> path, int xOffset, int yOffset) {
         double speed = 50.0; // pixels per second
         int hp = 100;
         int points = 3;
@@ -118,6 +120,8 @@ public class GamePanel extends JPanel {
      * Update the panel size based on the current window size.
      */
     private void updateSize() {
+        this.xOffset = (getWidth() - panelWidth) / 2;
+        this.yOffset = (getHeight() - panelHeight) / 2;
         panelWidth = (int) (getWidth() * 0.9);  // 90% of window width
         panelHeight = (int) (getHeight() * 0.8);  // 90% of window height  
         calculatedTileSize = Math.min(panelWidth / Maze.COLS, panelHeight / Maze.ROWS);  // Adjust tile size
@@ -127,9 +131,6 @@ public class GamePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         updateSize();
-
-        int xOffset = (getWidth() - panelWidth) / 2;
-        int yOffset = (getHeight() - panelHeight) / 2;
 
         // Render the maze
         for (int row = 0; row < Maze.ROWS; row++) {
@@ -184,7 +185,7 @@ public class GamePanel extends JPanel {
 
         // Draw Enemies
         for (Enemy enemy : enemies) {
-            enemy.draw(g, calculatedTileSize);
+            enemy.draw(g, calculatedTileSize, xOffset, yOffset);
         }
 
         // Draw the clock
@@ -199,8 +200,24 @@ public class GamePanel extends JPanel {
      * It updates the game state and repaints the panel.
      */
     public void updateGameState() {
+        updateSize();
         gameClock.beweeg(1.0f);  // Update the clock's state
         double deltaTime = DELAY / 1000.0; // Convert milliseconds to seconds
+
+        if (!initialEnemiesSpawned && getWidth() > 0 && getHeight() > 0) {
+            // Now we can safely spawn the enemies
+            int[][] pathArray = pathfinder.findPath();
+            if (pathArray != null) {
+                // Convert pathArray to List<int[]>
+                List<int[]> path = new ArrayList<>();
+                for (int[] cell : pathArray) {
+                    path.add(cell);
+                }
+                // Spawn an enemy for demonstration
+                spawnEnemy(path, xOffset, yOffset);
+                initialEnemiesSpawned = true;
+            }
+        }
 
         Iterator<Enemy> iterator = enemies.iterator();
         while (iterator.hasNext()) {

@@ -17,7 +17,7 @@ public class Enemy {
         this.points = points;
         this.currentPathIndex = 1; // Start moving towards the first step
 
-        // start at the start
+        // Start at the start position, adjusted for offsets
         this.x = path.get(0)[1] * tileSize + tileSize / 2;
         this.y = path.get(0)[0] * tileSize + tileSize / 2;
     }
@@ -69,18 +69,21 @@ public class Enemy {
         return currentPathIndex >= path.size();
     }
 
-    public void draw(Graphics g, int tileSize) {
-        // Draw the enemy as a red circle
+    public void draw(Graphics g, int tileSize, int xOffset, int yOffset) {
         g.setColor(Color.RED);
-        g.fillOval((int)x - tileSize/4, (int)y - tileSize/4, tileSize/2, tileSize/2);
+        int drawX = (int)(x - tileSize / 4) + xOffset;
+        int drawY = (int)(y - tileSize / 4) + yOffset;
+        g.fillOval(drawX, drawY, tileSize / 2, tileSize / 2);
 
         // Draw health bar
         g.setColor(Color.GREEN);
         int barWidth = tileSize / 2;
         int barHeight = 5;
-        g.fillRect((int)x - tileSize/4, (int)y - tileSize/4 - 10, (int)((hp / 100.0) * barWidth), barHeight);
+        int barX = drawX;
+        int barY = drawY - 10;
+        g.fillRect(barX, barY, (int)((hp / 100.0) * barWidth), barHeight);
         g.setColor(Color.BLACK);
-        g.drawRect((int)x - tileSize/4, (int)y - tileSize/4 - 10, barWidth, barHeight);
+        g.drawRect(barX, barY, barWidth, barHeight);
     }
 
     // Getters
