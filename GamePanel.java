@@ -60,14 +60,6 @@ public class GamePanel extends JPanel {
         pathfinder = new Pathfinder(maze);
 
         updateSize();
-        int[][] pathArray = pathfinder.findPath();
-        if (pathArray != null) {
-            // Convert pathArray to List<int[]>
-            List<int[]> path = new ArrayList<>();
-            for (int[] cell : pathArray) {
-                path.add(cell);
-            }
-        }
 
         // Add mouse listener for tower clicks
         Tower tower = new Tower(this);
