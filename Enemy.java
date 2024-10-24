@@ -3,57 +3,33 @@ import java.awt.Graphics;
 import java.util.List;
 
 public class Enemy {
-    private double x, y; //location
+    private int currentPathIndex; //location
+    private double progress;
     private int hp; //health
     private double speed;
     private int points;
     private List<int[]> path; // path
-    private int currentPathIndex; // path target
 
-    public Enemy(List<int[]> path, double speed, int hp, int points, int tileSize) {
+    public Enemy(List<int[]> path, double speed, int hp, int points) {
         this.path = path;
         this.speed = speed;
         this.hp = hp;
         this.points = points;
-        this.currentPathIndex = 1; // Start moving towards the first step
-
-        // Start at the start position, adjusted for offsets
-        this.x = path.get(0)[1] * tileSize + tileSize / 2;
-        this.y = path.get(0)[0] * tileSize + tileSize / 2;
+        this.currentPathIndex = 0; // Start moving towards the first step
+        this.progress = 0.0;
     }
 
-    public void move(double deltaTime, int tileSize) {
+    public void move(double deltaTime) {
         //reaching the end
         if (currentPathIndex >= path.size()) {
             return;
         }
 
-        int targetRow = path.get(currentPathIndex)[0];
-        int targetCol = path.get(currentPathIndex)[1];
+        progress += speed * deltaTime;
 
-        // grid to pixel coords
-        double targetX = targetCol * tileSize + tileSize / 2;
-        double targetY = targetRow * tileSize + tileSize / 2;
-
-        // distance to target
-        double dx = targetX - x;
-        double dy = targetY - y;
-        double distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < speed * deltaTime) {
-            // Move directly to the target position
-            x = targetX;
-            y = targetY;
-            // Proceed to the next cell in the path
+        while (progress >= 1.0 && currentPathIndex < path.size() - 1) {
+            progress -= 1.0;
             currentPathIndex++;
-        } else {
-            /*
-             * Move towards the target.
-             * - (dx / distance) and (dy / distance) normalize the direction vector.
-             * - Multiplying by speed * deltaTime scales the movement based on speed and elapsed time.
-             */
-            x += (dx / distance) * speed * deltaTime;
-            y += (dy / distance) * speed * deltaTime;
         }
     }
 
@@ -66,28 +42,41 @@ public class Enemy {
     }
 
     public boolean hasReachedEnd() {
-        return currentPathIndex >= path.size();
+        return currentPathIndex >= path.size() - 1 && progress >= 1.0;
     }
 
     public void draw(Graphics g, int tileSize, int xOffset, int yOffset) {
+        if (currentPathIndex >= path.size()) {
+            return; // Nothing to draw
+        }
+
+        // Current and next cells
+        int[] currentCell = path.get(currentPathIndex);
+        int[] nextCell = (currentPathIndex < path.size() - 1) ? path.get(currentPathIndex + 1) : currentCell;
+
+        // Interpolated position based on progress
+        double interpRow = currentCell[0] + (nextCell[0] - currentCell[0]) * progress;
+        double interpCol = currentCell[1] + (nextCell[1] - currentCell[1]) * progress;
+
+        // Convert grid position to pixel coordinates
+        int pixelX = xOffset + (int)((interpCol + 0.5) * tileSize);
+        int pixelY = yOffset + (int)((interpRow + 0.5) * tileSize);
+        // Draw the enemy as a red circle
         g.setColor(Color.RED);
-        int drawX = (int)(x - tileSize / 4) + xOffset;
-        int drawY = (int)(y - tileSize / 4) + yOffset;
-        g.fillOval(drawX, drawY, tileSize / 2, tileSize / 2);
+        int enemySize = tileSize / 2;
+        g.fillOval(pixelX - enemySize / 2, pixelY - enemySize / 2, enemySize, enemySize);
 
         // Draw health bar
         g.setColor(Color.GREEN);
-        int barWidth = tileSize / 2;
+        int barWidth = enemySize * 2;
         int barHeight = 5;
-        int barX = drawX;
-        int barY = drawY - 10;
+        int barX = pixelX - enemySize;
+        int barY = pixelY - enemySize / 2 - 10;
         g.fillRect(barX, barY, (int)((hp / 100.0) * barWidth), barHeight);
         g.setColor(Color.BLACK);
         g.drawRect(barX, barY, barWidth, barHeight);
     }
 
     // Getters
-    public double getX() { return x; }
-    public double getY() { return y; }
     public int getPoints() { return points; }
 }

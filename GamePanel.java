@@ -108,11 +108,11 @@ public class GamePanel extends JPanel {
 
     // Method to spawn an enemy
     public void spawnEnemy(List<int[]> path, int xOffset, int yOffset) {
-        double speed = 50.0; // pixels per second
+        double speed = 2.0;
         int hp = 100;
         int points = 3;
         int tileSize = calculatedTileSize;
-        Enemy enemy = new Enemy(path, speed, hp, points, tileSize);
+        Enemy enemy = new Enemy(path, speed, hp, points);
         enemies.add(enemy);
     }
 
@@ -120,11 +120,12 @@ public class GamePanel extends JPanel {
      * Update the panel size based on the current window size.
      */
     private void updateSize() {
-        this.xOffset = (getWidth() - panelWidth) / 2;
-        this.yOffset = (getHeight() - panelHeight) / 2;
         panelWidth = (int) (getWidth() * 0.9);  // 90% of window width
         panelHeight = (int) (getHeight() * 0.8);  // 90% of window height  
         calculatedTileSize = Math.min(panelWidth / Maze.COLS, panelHeight / Maze.ROWS);  // Adjust tile size
+
+        this.xOffset = (getWidth() - panelWidth) / 2;
+        this.yOffset = (getHeight() - panelHeight) / 2;
     }
 
     @Override
@@ -222,7 +223,7 @@ public class GamePanel extends JPanel {
         Iterator<Enemy> iterator = enemies.iterator();
         while (iterator.hasNext()) {
             Enemy enemy = iterator.next();
-            enemy.move(deltaTime, calculatedTileSize);
+            enemy.move(deltaTime);
 
             if (!enemy.isAlive()) {
                 // Enemy is dead, award points
