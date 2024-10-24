@@ -1,11 +1,9 @@
 public class Pathfinder {
-    private final int[] start;
-    private final int[] end;
     private final int startRow;
     private final int startCol;
     private final int endRow;
     private final int endCol;
-    private Maze maze;
+    private final Maze maze;
 
     // Arrays to store scores
     private final int[][] gScores; //cost from start to each cell
@@ -17,8 +15,8 @@ public class Pathfinder {
 
     public Pathfinder(Maze maze) {
         this.maze = maze;
-        this.start = maze.getStartPosition();
-        this.end = maze.getEndPosition();
+        int[] start = maze.getStartPosition();
+        int[] end = maze.getEndPosition();
         this.startRow = start[0];
         this.startCol = start[1];
         this.endRow = end[0];
@@ -168,7 +166,7 @@ public class Pathfinder {
             }
         }
 
-        if (minRow == -1 || minCol == -1) {
+        if (minRow == -1) {
             return null;
         }
 

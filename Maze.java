@@ -35,14 +35,14 @@ public class Maze {
         Random rand = new Random();
         int startRow = rand.nextInt(ROWS);
         pathStarts = 4;
-        createPath(startRow, 1);
+        createPath(startRow);
     }
 
-    private void createPath(int startRow, int startCol) {
+    private void createPath(int startRow) {
         Random rand = new Random();
         for (int x = 1; x <= pathStarts + 1; x ++) {
             if (x > 1) {
-                startCol = rand.nextInt(COLS);
+                int startCol = rand.nextInt(COLS);
                 startRow = rand.nextInt(ROWS - 5) + 5;
             }
             int currentRow = startRow;
@@ -74,7 +74,7 @@ public class Maze {
                     } else if (maze[currentRow][col - 1] == PATH) {
                         currentRow -= 1;
                     }
-                } else if (move == 1 && col < COLS-1) {
+                } else if (move == 1) {
                     makePath(currentRow, col);
                 }
 
@@ -178,7 +178,7 @@ public class Maze {
     private boolean connectToPath(int row, int col) {
         for (int r = row - 1; r <= row + 2; r++) {
             for (int c = col - 1; c <= col + 2; c++) {
-                if ((r >= 0 && r < ROWS && c >= 0 && c < COLS && maze[r][c] == 0) && !(r >= 0 && r < ROWS && c >= 0 && c < COLS && maze[r][c] == 4)) {
+                if (r >= 0 && r < ROWS && c >= 0 && c < COLS && maze[r][c] == 0) {
                     return true;
                 }
             }

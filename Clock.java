@@ -15,13 +15,12 @@ public class Clock {
     private long vorigeTijd;
     
     // Store position and size for potential future use
-    private int x, y, breedte, hoogte;
+    private final int x;
+    private final int y;
 
     public Clock(int x, int y, int breedte, int hoogte, int alarmtijd){
         this.x = x;
         this.y = y;
-        this.breedte = breedte;
-        this.hoogte = hoogte;
         status = true;
         snelheid = 1000000000; // 1 second in nanoseconds
         this.alarmtijd = alarmtijd;

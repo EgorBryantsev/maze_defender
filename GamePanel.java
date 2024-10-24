@@ -12,27 +12,26 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 public class GamePanel extends JPanel {
     private final int tileSize = 25; // Adjust tile size as needed
-    private Maze maze;
-    public int panelWidth;
-    public int panelHeight;
+    private final Maze maze;
+    public static int panelWidth;
+    public static int panelHeight;
     public int calculatedTileSize;
-    private Image buidlingUpgrade;
-    private List<Enemy> enemies; // List to manage active enemies
-    private Pathfinder pathfinder; // To get the path
+    private final List<Enemy> enemies; // List to manage active enemies
+    private final Pathfinder pathfinder; // To get the path
     private final int DELAY = 16;
     private int xOffset;
     private int yOffset;
     private boolean initialEnemiesSpawned = false;
 
     // Add Clock instance
-    private Clock gameClock;
-    private Timer gameTimer;
-    private GameState gameState;
+    private final Clock gameClock;
+    private final GameState gameState;
 
     // Constructor
     public GamePanel() {
@@ -41,11 +40,9 @@ public class GamePanel extends JPanel {
 
         gameState = new GameState();
 
-        gameTimer = new Timer(DELAY, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateGameState();  // Update the game state and clock
-            }
+        // Update the game state and clock
+        Timer gameTimer = new Timer(DELAY, e -> {
+            updateGameState();  // Update the game state and clock
         });
 
         // Start the timer
@@ -95,15 +92,14 @@ public class GamePanel extends JPanel {
             }
         });
 
-        buidlingUpgrade = new ImageIcon("upgrade-svgrepo-com.png").getImage();
+        Image buidlingUpgrade = new ImageIcon("upgrade-svgrepo-com.png").getImage();
     }
 
     // Method to spawn an enemy
-    public void spawnEnemy(List<int[]> path, int xOffset, int yOffset) {
+    public void spawnEnemy(List<int[]> path) {
         double speed = 2.0;
         int hp = 100;
         int points = 3;
-        int tileSize = calculatedTileSize;
         Enemy enemy = new Enemy(path, speed, hp, points);
         enemies.add(enemy);
     }
@@ -202,12 +198,9 @@ public class GamePanel extends JPanel {
             int[][] pathArray = pathfinder.findPath();
             if (pathArray != null) {
                 // Convert pathArray to List<int[]>
-                List<int[]> path = new ArrayList<>();
-                for (int[] cell : pathArray) {
-                    path.add(cell);
-                }
+                List<int[]> path = new ArrayList<>(Arrays.asList(pathArray));
                 // Spawn an enemy for demonstration
-                spawnEnemy(path, xOffset, yOffset);
+                spawnEnemy(path);
                 initialEnemiesSpawned = true;
             }
         }

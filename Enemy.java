@@ -6,9 +6,9 @@ public class Enemy {
     private int currentPathIndex; //location
     private double progress;
     private int hp; //health
-    private double speed;
-    private int points;
-    private List<int[]> path; // path
+    private final double speed;
+    private final int points;
+    private final List<int[]> path; // path
 
     public Enemy(List<int[]> path, double speed, int hp, int points) {
         this.path = path;
