@@ -10,27 +10,28 @@ public class Pathfinder {
     private final int endCol;
     private Maze maze;
 
-    private final int[][] gScores;
-    private final int[][] fScores;
-    private final int[][][] cameFrom;
-    private final boolean[][] closedList;
-    private final boolean[][] openList;
-
     public Pathfinder(Maze maze) {
         this.maze = maze;
         this.start = maze.getStartPosition();
         this.end = maze.getEndPosition();
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("Maze must have start and end positions.");
+        }
         this.startRow = start[0];
         this.startCol = start[1];
         this.endRow = end[0];
         this.endCol = end[1];
+    }
 
-        gScores = new int[Maze.ROWS][Maze.COLS];
-        fScores = new int[Maze.ROWS][Maze.COLS];
-        cameFrom = new int[Maze.ROWS][Maze.COLS][2];
-        closedList = new boolean[Maze.ROWS][Maze.COLS];
-        openList = new boolean[Maze.ROWS][Maze.COLS];
+    public int[][] findPath() {
+        // Initialize local variables for each pathfinding operation
+        int[][] gScores = new int[Maze.ROWS][Maze.COLS];
+        int[][] fScores = new int[Maze.ROWS][Maze.COLS];
+        int[][][] cameFrom = new int[Maze.ROWS][Maze.COLS][2];
+        boolean[][] closedList = new boolean[Maze.ROWS][Maze.COLS];
+        boolean[][] openList = new boolean[Maze.ROWS][Maze.COLS];
 
+        // Initialize scores
         for (int i = 0; i < Maze.ROWS; i++) {
             for (int j = 0; j < Maze.COLS; j++) {
                 gScores[i][j] = Integer.MAX_VALUE;
@@ -39,9 +40,7 @@ public class Pathfinder {
                 cameFrom[i][j][1] = -1;
             }
         }
-    }
 
-    public int[][] findPath() {
         PriorityQueue<int[]> openSet = new PriorityQueue<>(Comparator.comparingInt(a -> fScores[a[0]][a[1]]));
         openSet.add(new int[]{startRow, startCol});
         openList[startRow][startCol] = true;
@@ -53,8 +52,12 @@ public class Pathfinder {
             int currentRow = current[0];
             int currentCol = current[1];
 
+            // Debug: Current node being evaluated
+            // System.out.println("Evaluating node: (" + currentRow + ", " + currentCol + ")");
+
             if (currentRow == endRow && currentCol == endCol) {
-                return reconstructPath();
+                // System.out.println("Path found!");
+                return reconstructPath(cameFrom);
             }
 
             closedList[currentRow][currentCol] = true;
@@ -79,14 +82,19 @@ public class Pathfinder {
                     if (!openList[neighborRow][neighborCol]) {
                         openSet.add(new int[]{neighborRow, neighborCol});
                         openList[neighborRow][neighborCol] = true;
+                        // Debug: Adding node to open set
+                        // System.out.println("Adding node to open set: (" + neighborRow + ", " + neighborCol + ")");
                     }
                 }
             }
         }
+
+        // No path found
+        System.out.println("No path found for enemy.");
         return null;
     }
 
-    private int[][] reconstructPath() {
+    private int[][] reconstructPath(int[][][] cameFrom) {
         int tempRow = endRow;
         int tempCol = endCol;
 
