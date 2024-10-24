@@ -144,7 +144,7 @@ public class Pathfinder {
 
     private boolean hasOpenNodes() {
         for (int i=0; i < Maze.ROWS; i++) {
-            for (int j=0; i < Maze.COLS; j++) {
+            for (int j=0; j < Maze.COLS; j++) {
                 if (openList[i][j]) {
                     return true;
                 }

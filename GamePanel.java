@@ -11,6 +11,9 @@ import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class GamePanel extends JPanel {
     private final int tileSize = 25; // Adjust tile size as needed
@@ -19,6 +22,9 @@ public class GamePanel extends JPanel {
     public int panelHeight;
     public int calculatedTileSize;
     private Image buidlingUpgrade;
+    private List<Enemy> enemies; // List to manage active enemies
+    private Pathfinder pathfinder; // To get the path
+    private final int DELAY = 16;
 
     // Add Clock instance
     private Clock gameClock;
@@ -45,6 +51,21 @@ public class GamePanel extends JPanel {
         // Initialize the clock at position (10, 10), width 100, height 40, and alarm time of 30 seconds
         gameClock = new Clock(10, 10, 100, 40, 10);
         gameClock.start(); 
+
+        //enemies
+        enemies = new ArrayList<>();
+        pathfinder = new Pathfinder(maze);
+
+        int[][] pathArray = pathfinder.findPath();
+        if (pathArray != null) {
+            // Convert pathArray to List<int[]>
+            List<int[]> path = new ArrayList<>();
+            for (int[] cell : pathArray) {
+                path.add(cell);
+            }
+            // Spawn an enemy for demonstration
+            spawnEnemy(path);
+        }
 
         // Add mouse listener for tower clicks
         Tower tower = new Tower(this);
@@ -81,6 +102,16 @@ public class GamePanel extends JPanel {
         });
 
         buidlingUpgrade = new ImageIcon("upgrade-svgrepo-com.png").getImage();
+    }
+
+    // Method to spawn an enemy
+    public void spawnEnemy(List<int[]> path) {
+        double speed = 50.0; // pixels per second
+        int hp = 100;
+        int points = 3;
+        int tileSize = calculatedTileSize;
+        Enemy enemy = new Enemy(path, speed, hp, points, tileSize);
+        enemies.add(enemy);
     }
 
     /**
@@ -151,6 +182,11 @@ public class GamePanel extends JPanel {
             }
         }
 
+        // Draw Enemies
+        for (Enemy enemy : enemies) {
+            enemy.draw(g, calculatedTileSize);
+        }
+
         // Draw the clock
         Graphics2D g2d = (Graphics2D) g;
         gameClock.teken(g2d);  // Call the Clock's teken method to draw it
@@ -164,6 +200,25 @@ public class GamePanel extends JPanel {
      */
     public void updateGameState() {
         gameClock.beweeg(1.0f);  // Update the clock's state
+        double deltaTime = DELAY / 1000.0; // Convert milliseconds to seconds
+
+        Iterator<Enemy> iterator = enemies.iterator();
+        while (iterator.hasNext()) {
+            Enemy enemy = iterator.next();
+            enemy.move(deltaTime, calculatedTileSize);
+
+            if (!enemy.isAlive()) {
+                // Enemy is dead, award points
+                gameState.money += enemy.getPoints();
+                iterator.remove();
+            } else if (enemy.hasReachedEnd()) {
+                // Enemy reached the end, handle accordingly
+                // For example, reduce player lives or money
+                System.out.println("Enemy reached the end!");
+                iterator.remove();
+            }
+        }
+
         repaint();  // Trigger a repaint to reflect changes
     }
 }
