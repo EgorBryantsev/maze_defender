@@ -37,36 +37,6 @@ public class Maze {
         createPath(startRow, 1);
     }
 
-    public int[] getStartPosition() {
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
-                if (maze[row][col] == START) {
-                    return new int[] { row, col };
-                }
-            }
-        }
-        return null;
-    }
-
-    public int[] getEndPosition() {
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
-                if (maze[row][col] == END) {
-                    return new int[] { row, col };
-                }
-            }
-        }
-        return null;
-    }
-
-    public boolean isWalkable(int row, int col) {
-        if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
-            return maze[row][col] == PATH || maze[row][col] == START || maze[row][col] == END;
-        }
-        return false; // Return false if the indices are out of bounds
-    }
-
-
     private void createPath(int startRow, int startCol) {
         Random rand = new Random();
         for (int x = 1; x <= pathStarts + 1; x ++) {
@@ -221,6 +191,35 @@ public class Maze {
     }
     public int[][] getMazeGrid() {
         return maze;
+    }
+    
+    public int[] getStartPosition() {
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+                if (maze[row][col] == START) {
+                    return new int[] { row, col };
+                }
+            }
+        }
+        return null;
+    }
+
+    public int[] getEndPosition() {
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+                if (maze[row][col] == END) {
+                    return new int[] { row, col };
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean isWalkable(int row, int col) {
+        if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+            return maze[row][col] == PATH || maze[row][col] == START || maze[row][col] == END;
+        }
+        return false; // Return false if the indices are out of bounds
     }
 
 }
