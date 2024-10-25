@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 /**
@@ -86,13 +87,17 @@ public class Clock {
      * @param g The Graphics2D object to draw with.
      */
     public void teken(Graphics2D g){
+
+        g.setFont(new Font(Font.SERIF, Font.ITALIC, 18));
+
+        FontMetrics fm = g.getFontMetrics();
+        int textWidth = fm.stringWidth(melding + "  ");
         // Draw the clock background
         g.setColor(Color.BLACK);
-        g.fillRect(x, y, 80, 40);
+        g.fillRect(x, y, textWidth, 40);
         
         // Set font for the melding text
-        g.setFont(new Font(Font.SERIF, Font.ITALIC, 18));
-        
+      
         // Draw the melding text
         g.setColor(Color.RED);
         g.drawString(melding, x + 5, y + 30);

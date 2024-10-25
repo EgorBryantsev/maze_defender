@@ -2,19 +2,17 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.Timer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+import javax.swing.Timer;
 
 public class GamePanel extends JPanel {
     private final int tileSize = 25; // Adjust tile size as needed
@@ -28,10 +26,23 @@ public class GamePanel extends JPanel {
     private int xOffset;
     private int yOffset;
     private boolean initialEnemiesSpawned = false;
+    private int alarmtijd = 60;
 
     // Add Clock instance
     private final Clock gameClock;
     private final GameState gameState;
+
+    private int confirmX, confirmY, confirmCost;
+    private boolean showConfirm = false; // Track if the confirmation message is visible
+
+    // Method to display confirmation message
+    public void showUpgradeConfirmation(int row, int col, int cost) {
+        confirmX = xOffset + col * calculatedTileSize;
+        confirmY = yOffset + row * calculatedTileSize;
+        confirmCost = cost;
+        showConfirm = true;
+        repaint();
+    }
 
     // Constructor
     public GamePanel() {
@@ -49,7 +60,7 @@ public class GamePanel extends JPanel {
         gameTimer.start();
 
         // Initialize the clock at position (10, 10), width 100, height 40, and alarm time of 30 seconds
-        gameClock = new Clock(10, 10, 100, 40, 10);
+        gameClock = new Clock(10, 10, 100, 40, alarmtijd);
         gameClock.start();
 
         //enemies
@@ -104,6 +115,18 @@ public class GamePanel extends JPanel {
         enemies.add(enemy);
     }
 
+    public Tower getTower(int row, int col) {
+        for (int x = 0; x < Maze.ROWS; x ++) {
+            for (int y = 0; y < Maze.COLS; y++) {
+                if (Maze.maze[x][y] >= 5) {
+                    row = x;
+                    col = y;
+                }
+            }
+        }
+        return null; // Placeholder, replace with actual fetching logic
+    }
+
     /**
      * Update the panel size based on the current window size.
      */
@@ -145,21 +168,17 @@ public class GamePanel extends JPanel {
                         switch (Maze.maze[row][col]) {
                             case 5:
                                 g.setColor(Color.CYAN);
-                                Tower.towerLevel++;
                                 break;
                             case 6:
                                 g.setColor(Color.YELLOW);
-                                Tower.towerLevel++;
                                 break;
                             case 9:
                                 Maze.maze[row][col] = 8;
                             case 7:
                                 g.setColor(Color.ORANGE);
-                                Tower.towerLevel++;
                                 break;
                             case 8:
                                 g.setColor(Color.RED);
-                                Tower.towerLevel++;
                                 break;
                             default:
                                 break;
@@ -172,6 +191,13 @@ public class GamePanel extends JPanel {
             }
         }
 
+        if (showConfirm) {
+            g.setColor(Color.BLACK);
+            g.fillRect(confirmX, confirmY - 20, 100, 20); // Background for message
+            g.setColor(Color.RED);
+            g.drawString("Upgrade cost: $" + confirmCost, confirmX + 5, confirmY - 5);
+        }
+
         // Draw Enemies
         for (Enemy enemy : enemies) {
             enemy.draw(g, calculatedTileSize, xOffset, yOffset);
@@ -180,8 +206,12 @@ public class GamePanel extends JPanel {
         // Draw the clock
         Graphics2D g2d = (Graphics2D) g;
         gameClock.teken(g2d);  // Call the Clock's teken method to draw it
-        //gameState.teken(g2d);
+        gameState.teken(g2d);
 
+    }
+
+    public void confirmUpgrade() {
+        showConfirm = false;
     }
 
     /**
