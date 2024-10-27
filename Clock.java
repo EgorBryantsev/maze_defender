@@ -10,43 +10,43 @@ import java.awt.Graphics2D;
  * @version (versie nummer of datum)
  */
 public class Clock {
-    public String melding;
-    public boolean status, tijdIsOm;
-    public int snelheid, alarmtijd, verlopenTijd;
-    private long vorigeTijd;
+    public String message;
+    public boolean status, timeOver;
+    public int clockSpeed, alarmTime, timePassed;
+    private long previousTime;
     
     // Store position and size for potential future use
     private final int x;
     private final int y;
 
-    public Clock(int x, int y, int breedte, int hoogte, int alarmtijd){
+    public Clock(int x, int y, int width, int height, int alarmTime){
         this.x = x;
         this.y = y;
         status = true;
-        snelheid = 1000000000; // 1 second in nanoseconds
-        this.alarmtijd = alarmtijd;
-        tijdIsOm = false;
-        verlopenTijd = 0;
-        vorigeTijd = System.nanoTime();
-        melding = "gestopt";
+        clockSpeed = 1000000000; // 1 second in nanoseconds
+        this.alarmTime = alarmTime;
+        timeOver = false;
+        timePassed = 0;
+        previousTime = System.nanoTime();
+        message = "stopped";
     }
 
     /**
      * Update the clock's state.
      * @param s The time delta in seconds (not used in current implementation).
      */
-    public void beweeg(float s){
-        loopt();
+    public void move(float s){
+        runs();
     }
     
     /**
      * Reset the clock to its initial state.
      */
     public void reset(){
-        verlopenTijd = 0;
-        tijdIsOm = false;
-        melding = "New Wave";
-        vorigeTijd = System.nanoTime();
+        timePassed = 0;
+        timeOver = false;
+        message = "New Wave";
+        previousTime = System.nanoTime();
     }
     
     /**
@@ -54,28 +54,28 @@ public class Clock {
      */
     public void start() {
         status = true;  // Set clock to running state
-        melding = "Time " + (alarmtijd - verlopenTijd);
-        vorigeTijd = System.nanoTime();  // Set the start time
+        message = "Time " + (alarmTime - timePassed);
+        previousTime = System.nanoTime();  // Set the start time
     }
     
 
     /**
      * The main loop that updates the clock's time.
      */
-    public void loopt() {
+    public void runs() {
         long now = System.nanoTime();
         if (status) {
-            if (now - vorigeTijd >= snelheid) {
-                verlopenTijd++;
-                System.out.println("Elapsed Time: " + verlopenTijd);  // Debugging line
-                melding = "Time " + (alarmtijd - verlopenTijd);
-                vorigeTijd = now;
+            if (now - previousTime >= clockSpeed) {
+                timePassed++;
+                System.out.println("Elapsed Time: " + timePassed);  // Debugging line
+                message = "Time " + (alarmTime - timePassed);
+                previousTime = now;
             }
-            if (verlopenTijd >= alarmtijd) {
+            if (timePassed >= alarmTime) {
                 status = false;
-                tijdIsOm = true;
-                melding = "New Wave: Press Space";
-                System.out.println("Timer stopped at: " + verlopenTijd);  // Debugging line
+                timeOver = true;
+                message = "New Wave: Press Space";
+                System.out.println("Timer stopped at: " + timePassed);  // Debugging line
             }
         }
     }
@@ -86,21 +86,21 @@ public class Clock {
      * Draw the clock on the screen.
      * @param g The Graphics2D object to draw with.
      */
-    public void teken(Graphics2D g){
+    public void draw(Graphics2D g){
 
         g.setFont(new Font(Font.SERIF, Font.ITALIC, 18));
 
         FontMetrics fm = g.getFontMetrics();
-        int textWidth = fm.stringWidth(melding + "  ");
+        int textWidth = fm.stringWidth(message + "  ");
         // Draw the clock background
         g.setColor(Color.BLACK);
         g.fillRect(x, y, textWidth, 40);
         
-        // Set font for the melding text
+        // Set font for the message text
       
-        // Draw the melding text
+        // Draw the message text
         g.setColor(Color.RED);
-        g.drawString(melding, x + 5, y + 30);
+        g.drawString(message, x + 5, y + 30);
     }
     
     /**

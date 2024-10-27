@@ -7,7 +7,7 @@ public class GameState {
     public static int money = 300;
     public int lives = 5;
 
-    public void teken(Graphics2D g){
+    public void draw(Graphics2D g){
         // Set font for the money text
         g.setFont(new Font(Font.SERIF, Font.BOLD, 18));
         

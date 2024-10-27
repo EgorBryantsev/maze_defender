@@ -15,6 +15,7 @@ public class GamePanel extends JPanel {
     private final Maze maze;
     public static int panelWidth;
     public static int panelHeight;
+    public static boolean playable = true;
     public int calculatedTileSize;
     private static List<Enemy> enemies; // List to manage active enemies
     private final Pathfinder pathfinder; // To get the path
@@ -36,7 +37,9 @@ public class GamePanel extends JPanel {
     // Constructor
     public GamePanel() {
         this.setBackground(Color.DARK_GRAY);
+
         maze = new Maze(); // Initialize the maze
+
         currentRoundNumber = 1;
         startNewRound(currentRoundNumber);
 
@@ -51,8 +54,8 @@ public class GamePanel extends JPanel {
         gameTimer.start();
 
         // Initialize the clock at position (10, 10), width 100, height 40, and alarm time of 30 seconds
-        int alarmtijd = 60;
-        gameClock = new Clock(10, 10, 100, 40, alarmtijd);
+        int alarmTime = 60;
+        gameClock = new Clock(10, 10, 100, 40, alarmTime);
         gameClock.start();
 
         //enemies
@@ -73,7 +76,7 @@ public class GamePanel extends JPanel {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (gameClock.tijdIsOm) {
+                if (gameClock.timeOver) {
                     int mouseX = e.getX();
                     int mouseY = e.getY();
                     int[] bounds = gameClock.getBounds();
@@ -91,7 +94,7 @@ public class GamePanel extends JPanel {
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SPACE && gameClock.tijdIsOm) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE && gameClock.timeOver) {
                     // Reset and start a new wave when spacebar is pressed
                     gameClock.reset();
                     gameClock.start();
@@ -198,8 +201,8 @@ public class GamePanel extends JPanel {
 
         // Draw the clock
         Graphics2D g2d = (Graphics2D) g;
-        gameClock.teken(g2d);  // Call the Clock's teken method to draw it
-        gameState.teken(g2d);
+        gameClock.draw(g2d);  // Call the Clock's draw method to draw it
+        gameState.draw(g2d);
 
     }
 
@@ -213,7 +216,7 @@ public class GamePanel extends JPanel {
      */
     public void updateGameState() {
         updateSize();
-        gameClock.beweeg(1.0f);  // Update the clock's state
+        gameClock.move(1.0f);  // Update the clock's state
         double deltaTime = DELAY / 1000.0; // Convert milliseconds to seconds
 
         Iterator<Enemy> iterator = enemies.iterator();
@@ -265,6 +268,7 @@ public class GamePanel extends JPanel {
                 enemiesSpawned++;
             } else {
                 System.out.println("No path found for enemy.");
+                playable = false;
             }
         } else {
             // All enemies for this round have been spawned
@@ -298,8 +302,9 @@ public class GamePanel extends JPanel {
         }
 
         // Show game over message
-        JOptionPane.showMessageDialog(this, "Game Over! You have lost all your lives.", "Game Over", JOptionPane.INFORMATION_MESSAGE);
-        System.exit(0); // Exit the game
+        /* JOptionPane.showMessageDialog(this, "Game Over! You have lost all your lives.", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+        System.exit(0); // Exit the game */
+        GamePanel.playable = false;
     }
 
     public void setConfirmX(int confirmX) {
