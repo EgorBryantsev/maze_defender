@@ -274,9 +274,6 @@ public class GamePanel extends JPanel {
                             calculatedTileSize,
                             calculatedTileSize);
                 }
-                // Draw grid lines
-                g.setColor(Color.LIGHT_GRAY);
-                g.drawRect(xOffset + col * calculatedTileSize, yOffset + row * calculatedTileSize, calculatedTileSize, calculatedTileSize);
             }
         }
 
