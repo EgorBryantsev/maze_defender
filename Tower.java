@@ -92,8 +92,8 @@ public class Tower {
     }
 
     private void shootSpinningAttack() {
-        int towerX = getTowerX();
-        int towerY = getTowerY();
+        int towerX = getTowerX() + gamePanel.calculatedTileSize; // Center X
+        int towerY = getTowerY() + gamePanel.calculatedTileSize; // Center Y
         int projectileSpeed = 10; // Adjust as needed
 
         // Number of projectiles (e.g., 8 for every 45 degrees)
@@ -101,7 +101,7 @@ public class Tower {
         double angleIncrement = 360.0 / projectilesCount;
 
         for (int i = 0; i < projectilesCount; i++) {
-            double angle = Math.toRadians(i * angleIncrement);
+            double angle = Math.toRadians(i * angleIncrement + spinAngle);
             int targetX = towerX + (int)(Math.cos(angle) * range * gamePanel.calculatedTileSize);
             int targetY = towerY + (int)(Math.sin(angle) * range * gamePanel.calculatedTileSize);
 
@@ -115,8 +115,15 @@ public class Tower {
             );
             projectiles.add(p);
         }
+
+        // Rotate the pattern for spinning effect
+        spinAngle += 10;
+        if (spinAngle >= 360) {
+            spinAngle = 0;
+        }
     }
-    
+
+
     private Enemy findClosestEnemy(ArrayList<Enemy> enemies) {
         Enemy closest = null;
         int closestDistance = range * gamePanel.calculatedTileSize;  // Maximum range
@@ -175,12 +182,17 @@ public class Tower {
     }
     
     public void draw(Graphics g) {
-        // Draw all projectiles
+
         for (Projectile p : projectiles) {
             p.draw(g);
         }
-        
-        // Draw range circle for max level towers
+
+        int centerX = getTowerX() + gamePanel.calculatedTileSize / 2;
+        int centerY = getTowerY() + gamePanel.calculatedTileSize / 2;
+
+        g.setColor(getLevelColor());
+        g.fillRect(getTowerX(), getTowerY(), 2 * gamePanel.calculatedTileSize, 2 * gamePanel.calculatedTileSize);
+
         if (towerLevel == 4) {
             g.setColor(new Color(255, 0, 0, 50));  // Semi-transparent red
             int size = range * 2 * gamePanel.calculatedTileSize;
