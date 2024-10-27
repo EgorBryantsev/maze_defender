@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 
 public class GameState {
     public static int money = 300;
+    public int lives = 5;
 
     public void teken(Graphics2D g){
         // Set font for the money text
@@ -26,5 +27,19 @@ public class GameState {
         // Draw the money text
         g.setColor(Color.GREEN);
         g.drawString(moneyText, x + 5, y + 30);
+
+        // Draw Lives
+        String livesText = "Lives: " + lives;
+        textWidth = fm.stringWidth(livesText);
+        x = GamePanel.panelWidth - textWidth - 10; // Right alignment with padding
+        y = 50; // Position below the money display
+
+        // Draw the lives display background
+        g.setColor(Color.BLACK);
+        g.fillRect(x, y, textWidth + 10, 40);  // Add padding
+
+        // Draw the lives text
+        g.setColor(Color.RED);
+        g.drawString(livesText, x + 5, y + 30);
     }
 }

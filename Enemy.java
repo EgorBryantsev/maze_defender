@@ -1,6 +1,5 @@
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.List;
 
 public class Enemy {
     private int currentPathIndex; //location
@@ -8,9 +7,9 @@ public class Enemy {
     private int hp; //health
     private final double speed;
     private final int points;
-    private final List<int[]> path; // path
+    private final int[][] path; // path
 
-    public Enemy(List<int[]> path, double speed, int hp, int points) {
+    public Enemy(int[][] path, double speed, int hp, int points) {
         this.path = path;
         this.speed = speed;
         this.hp = hp;
@@ -21,13 +20,13 @@ public class Enemy {
 
     public void move(double deltaTime) {
         //reaching the end
-        if (currentPathIndex >= path.size()) {
+        if (currentPathIndex >= path.length) {
             return;
         }
 
         progress += speed * deltaTime;
 
-        while (progress >= 1.0 && currentPathIndex < path.size() - 1) {
+        while (progress >= 1.0 && currentPathIndex < path.length - 1) {
             progress -= 1.0;
             currentPathIndex++;
         }
@@ -42,17 +41,17 @@ public class Enemy {
     }
 
     public boolean hasReachedEnd() {
-        return currentPathIndex >= path.size() - 1 && progress >= 1.0;
+        return currentPathIndex >= path.length - 1 && progress >= 1.0;
     }
 
     public void draw(Graphics g, int tileSize, int xOffset, int yOffset) {
-        if (currentPathIndex >= path.size()) {
+        if (currentPathIndex >= path.length) {
             return; // Nothing to draw
         }
 
         // Current and next cells
-        int[] currentCell = path.get(currentPathIndex);
-        int[] nextCell = (currentPathIndex < path.size() - 1) ? path.get(currentPathIndex + 1) : currentCell;
+        int[] currentCell = path[currentPathIndex];
+        int[] nextCell = (currentPathIndex < path.length - 1) ? path[currentPathIndex + 1] : currentCell;
 
         // Interpolated position based on progress
         double interpRow = currentCell[0] + (nextCell[0] - currentCell[0]) * progress;

@@ -7,12 +7,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.Timer;
+import javax.swing.*;
 
 public class GamePanel extends JPanel {
     private final int tileSize = 25; // Adjust tile size as needed
@@ -20,13 +17,17 @@ public class GamePanel extends JPanel {
     public static int panelWidth;
     public static int panelHeight;
     public int calculatedTileSize;
-    private final List<Enemy> enemies; // List to manage active enemies
+    private static List<Enemy> enemies; // List to manage active enemies
     private final Pathfinder pathfinder; // To get the path
     private final int DELAY = 16;
     private int xOffset;
     private int yOffset;
-    private boolean initialEnemiesSpawned = false;
     private int alarmtijd = 60;
+    private Round currentRound;
+    private int currentRoundNumber;
+    private Timer spawnTimer;
+    private int enemiesSpawned;
+    private boolean isRoundActive;
 
     // Add Clock instance
     private final Clock gameClock;
@@ -48,6 +49,8 @@ public class GamePanel extends JPanel {
     public GamePanel() {
         this.setBackground(Color.DARK_GRAY);
         maze = new Maze(); // Initialize the maze
+        currentRoundNumber = 1;
+        startNewRound(currentRoundNumber);
 
         gameState = new GameState();
 
@@ -68,6 +71,10 @@ public class GamePanel extends JPanel {
         pathfinder = new Pathfinder(maze);
 
         updateSize();
+
+        currentRoundNumber = 1;
+        startNewRound(currentRoundNumber);
+        spawnTimer = new Timer(0, null);
 
         // Add mouse listener for tower clicks
         Tower tower = new Tower(this);
@@ -107,10 +114,7 @@ public class GamePanel extends JPanel {
     }
 
     // Method to spawn an enemy
-    public void spawnEnemy(List<int[]> path) {
-        double speed = 2.0;
-        int hp = 100;
-        int points = 3;
+    public static void spawnEnemy(int[][] path, double speed, int hp, int points) {
         Enemy enemy = new Enemy(path, speed, hp, points);
         enemies.add(enemy);
     }
@@ -223,18 +227,6 @@ public class GamePanel extends JPanel {
         gameClock.beweeg(1.0f);  // Update the clock's state
         double deltaTime = DELAY / 1000.0; // Convert milliseconds to seconds
 
-        if (!initialEnemiesSpawned && getWidth() > 0 && getHeight() > 0) {
-            // Now we can safely spawn the enemies
-            int[][] pathArray = pathfinder.findPath();
-            if (pathArray != null) {
-                // Convert pathArray to List<int[]>
-                List<int[]> path = new ArrayList<>(Arrays.asList(pathArray));
-                // Spawn an enemy for demonstration
-                spawnEnemy(path);
-                initialEnemiesSpawned = true;
-            }
-        }
-
         Iterator<Enemy> iterator = enemies.iterator();
         while (iterator.hasNext()) {
             Enemy enemy = iterator.next();
@@ -248,10 +240,80 @@ public class GamePanel extends JPanel {
                 // Enemy reached the end, handle accordingly
                 // For example, reduce player lives or money
                 System.out.println("Enemy reached the end!");
+                gameState.lives -= 1;
                 iterator.remove();
+
+                if (gameState.lives <= 0) {
+                    gameOver();
+                    return; // Exit early to prevent further updates
+                }
             }
         }
 
         repaint();  // Trigger a repaint to reflect changes
     }
+
+    private void startNewRound(int roundNumber) {
+        // Define how totalPoints and spawnFrequency scale with roundNumber
+        int totalPoints = (int) (100 * Math.pow(1.5, roundNumber - 1));
+        currentRound = new Round(totalPoints, 2000);
+        enemiesSpawned = 0;
+        isRoundActive = true;
+
+        System.out.println("Round " + roundNumber + " started with " + totalPoints + " points.");
+
+        spawnTimer = new Timer(currentRound.getSpawnFrequency(), e -> spawnNextEnemy());
+        spawnTimer.start();
+    }
+
+    private void spawnNextEnemy() {
+        if (enemiesSpawned < currentRound.getEnemiesToSpawn().size()) {
+            EnemyTypes enemyTypes = currentRound.getEnemiesToSpawn().get(enemiesSpawned);
+            double speed = enemyTypes.getSpeed();
+            int hp = enemyTypes.getHp();
+            int points = enemyTypes.getPoints();
+            int[][] path = pathfinder.findPath(); // Correctly call the instance method
+
+            if (path != null) {
+                spawnEnemy(path, speed, hp, points);
+                enemiesSpawned++;
+            } else {
+                System.out.println("No path found for enemy.");
+            }
+        } else {
+            // All enemies for this round have been spawned
+            spawnTimer.stop();
+            checkRoundCompletion();
+        }
+    }
+
+    private boolean isRoundActive() {
+        return spawnTimer != null && spawnTimer.isRunning();
+    }
+
+    private void checkRoundCompletion() {
+        // Check if all enemies are defeated
+        if (!isRoundActive() && enemies.isEmpty()) {
+            // Start the next round after a short delay (e.g., 3 seconds)
+            Timer delayTimer = new Timer(3000, e -> {
+                currentRoundNumber++;
+                startNewRound(currentRoundNumber);
+                ((Timer) e.getSource()).stop();
+            });
+            delayTimer.setRepeats(false);
+            delayTimer.start();
+        }
+    }
+
+    private void gameOver() {
+        // Stop the spawn timer
+        if (spawnTimer != null && spawnTimer.isRunning()) {
+            spawnTimer.stop();
+        }
+
+        // Show game over message
+        JOptionPane.showMessageDialog(this, "Game Over! You have lost all your lives.", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+        System.exit(0); // Exit the game
+    }
+
 }
