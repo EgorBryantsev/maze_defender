@@ -33,6 +33,10 @@ public class GamePanel extends JPanel {
     private int confirmX, confirmY, confirmCost;
     private boolean showConfirm = false;
 
+    private static final int PADDING = 10;
+    private static final int ITEM_HEIGHT = 30;
+    private static final int ITEM_SPACING = 10;
+
     // Constructor
     public GamePanel() {
         this.setBackground(Color.DARK_GRAY);
@@ -84,6 +88,21 @@ public class GamePanel extends JPanel {
         });
         gameTimer.start();
 
+        // Initialize the clock at position (10, 10), width 100, height 40, and alarm time of 30 seconds
+        int alarmTime = 60;
+        gameClock = new Clock(alarmTime);
+        gameClock.start();
+
+        enemies = new ArrayList<>();
+        pathfinder = new Pathfinder(maze);
+
+        updateSize();
+
+        currentRoundNumber = 1;
+        startNewRound(currentRoundNumber);
+        spawnTimer = new Timer(0, null);
+
+        // Add mouse listener for tower clicks
         Tower tower = new Tower(this);
         this.addMouseListener(tower.new BuildingClicked());
         
@@ -93,9 +112,9 @@ public class GamePanel extends JPanel {
                 if (gameClock.timeOver) {
                     int mouseX = e.getX();
                     int mouseY = e.getY();
-                    int[] bounds = gameClock.getBounds();
+                    int[] bounds = gameClock.getBounds(PADDING, ITEM_HEIGHT * 2 + ITEM_SPACING * 2);
                     if (mouseX >= bounds[0] && mouseX <= (bounds[0] + bounds[2]) &&
-                        mouseY >= bounds[1] && mouseY <= (bounds[1] + bounds[3])) {
+                            mouseY >= bounds[1] && mouseY <= (bounds[1] + bounds[3])) {
                         gameClock.reset();
                         gameClock.start();
                     }
@@ -149,6 +168,8 @@ public class GamePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         updateSize();
+
+        Graphics2D g2d = (Graphics2D) g;
 
         // Render the maze
         for (int row = 0; row < Maze.ROWS; row++) {
@@ -209,10 +230,13 @@ public class GamePanel extends JPanel {
             enemy.draw(g, calculatedTileSize, xOffset, yOffset);
         }
 
-        // Draw the clock
-        Graphics2D g2d = (Graphics2D) g;
-        gameClock.draw(g2d);  // Call the Clock's draw method to draw it
+        // Draw the GameState items (Money and Lives)
         gameState.draw(g2d);
+
+        // clock
+        int clockX = PADDING;
+        int clockY = PADDING + (ITEM_HEIGHT + ITEM_SPACING) * gameState.getNumberOfItems();
+        gameClock.draw(g2d, clockX, clockY);
 
     }
 

@@ -3,25 +3,13 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
-/**
- * class Klok - geef hier een beschrijving van deze class
- *
- * @author (jouw naam)
- * @version (versie nummer of datum)
- */
 public class Clock {
     public String message;
     public boolean status, timeOver;
     public int clockSpeed, alarmTime, timePassed;
     private long previousTime;
-    
-    // Store position and size for potential future use
-    private final int x;
-    private final int y;
 
-    public Clock(int x, int y, int width, int height, int alarmTime){
-        this.x = x;
-        this.y = y;
+    public Clock(int alarmTime){
         status = true;
         clockSpeed = 1000000000; // 1 second in nanoseconds
         this.alarmTime = alarmTime;
@@ -86,28 +74,36 @@ public class Clock {
      * Draw the clock on the screen.
      * @param g The Graphics2D object to draw with.
      */
-    public void draw(Graphics2D g){
-
-        g.setFont(new Font(Font.SERIF, Font.ITALIC, 18));
-
+    public void draw(Graphics2D g, int x, int y){
+        Font font = new Font(Font.SERIF, Font.BOLD, 18);
+        g.setFont(font);
         FontMetrics fm = g.getFontMetrics();
-        int textWidth = fm.stringWidth(message + "  ");
-        // Draw the clock background
+        int textWidth = fm.stringWidth(message) + 20; // Added padding
+
+        // Background rectangle
+        g.setColor(Color.DARK_GRAY);
+        g.fillRoundRect(x, y, textWidth, 40, 15, 15); // Rounded corners for aesthetics
+
+        // Draw border
         g.setColor(Color.BLACK);
-        g.fillRect(x, y, textWidth, 40);
-        
-        // Set font for the message text
-      
-        // Draw the message text
-        g.setColor(Color.RED);
-        g.drawString(message, x + 5, y + 30);
+        g.drawRoundRect(x, y, textWidth, 40, 15, 15);
+
+        // Draw the text
+        g.setColor(Color.WHITE);
+        // Vertically center the text
+        int textX = x + 10;
+        int textY = y + ((40 - fm.getHeight()) / 2) + fm.getAscent();
+        g.drawString(message, textX, textY);
     }
     
     /**
      * Get the bounding rectangle of the clock for click detection.
      * @return An array containing x, y, width, height.
      */
-    public int[] getBounds() {
-        return new int[] { x, y, 80, 40 };
+    public int[] getBounds(int x, int y) {
+        Font font = new Font(Font.SERIF, Font.ITALIC, 18);
+        FontMetrics fm = new FontMetrics(font) {};
+        int textWidth = fm.stringWidth(message) + 20;
+        return new int[] { x, y, textWidth, 40 };
     }
 }
