@@ -66,7 +66,7 @@ public class GamePanel extends JPanel {
         try {
             // Use relative paths since images are in the same package
             stoneWallTexture = ImageIO.read(Objects.requireNonNull(getClass().getResource("stonewall.png")));
-            floorTileTexture = ImageIO.read(Objects.requireNonNull(getClass().getResource("floortiles.png")));
+            floorTileTexture = ImageIO.read(Objects.requireNonNull(getClass().getResource("grass_01.png")));
             System.out.println("Textures loaded successfully.");
         } catch (IOException | NullPointerException e) {
             e.printStackTrace();
@@ -247,6 +247,32 @@ public class GamePanel extends JPanel {
                             calculatedTileSize,
                             calculatedTileSize,
                             this);
+                }else {
+                    // Fill the rectangle with color if no texture
+                    switch (cell) {
+                        case Maze.WALL:
+                            g.setColor(Color.BLACK);
+                            break;
+                        case Maze.PATH:
+                            g.setColor(Color.WHITE);
+                            break;
+                        case Maze.START:
+                            g.setColor(Color.GREEN);
+                            break;
+                        case Maze.END:
+                            g.setColor(Color.YELLOW);
+                            break;
+                        case Maze.BUILDING:
+                            g.setColor(Color.GRAY);
+                            break;
+                        default:
+                            // Set color based on other cell types if necessary
+                            break;
+                    }
+                    g.fillRect(xOffset + col * calculatedTileSize,
+                            yOffset + row * calculatedTileSize,
+                            calculatedTileSize,
+                            calculatedTileSize);
                 }
                 // Draw grid lines
                 g.setColor(Color.LIGHT_GRAY);
