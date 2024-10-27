@@ -12,7 +12,6 @@ import java.util.List;
 import javax.swing.*;
 
 public class GamePanel extends JPanel {
-    private final int tileSize = 25; // Adjust tile size as needed
     private final Maze maze;
     public static int panelWidth;
     public static int panelHeight;
@@ -22,12 +21,10 @@ public class GamePanel extends JPanel {
     private final int DELAY = 16;
     private int xOffset;
     private int yOffset;
-    private int alarmtijd = 60;
     private Round currentRound;
     private int currentRoundNumber;
     private Timer spawnTimer;
     private int enemiesSpawned;
-    private boolean isRoundActive;
 
     // Add Clock instance
     private final Clock gameClock;
@@ -35,15 +32,6 @@ public class GamePanel extends JPanel {
 
     private int confirmX, confirmY, confirmCost;
     private boolean showConfirm = false; // Track if the confirmation message is visible
-
-    // Method to display confirmation message
-    public void showUpgradeConfirmation(int row, int col, int cost) {
-        confirmX = xOffset + col * calculatedTileSize;
-        confirmY = yOffset + row * calculatedTileSize;
-        confirmCost = cost;
-        showConfirm = true;
-        repaint();
-    }
 
     // Constructor
     public GamePanel() {
@@ -55,7 +43,7 @@ public class GamePanel extends JPanel {
         gameState = new GameState();
 
         // Update the game state and clock
-        Timer gameTimer = new Timer(DELAY, e -> {
+        Timer gameTimer = new Timer(DELAY, _ -> {
             updateGameState();  // Update the game state and clock
         });
 
@@ -63,6 +51,7 @@ public class GamePanel extends JPanel {
         gameTimer.start();
 
         // Initialize the clock at position (10, 10), width 100, height 40, and alarm time of 30 seconds
+        int alarmtijd = 60;
         gameClock = new Clock(10, 10, 100, 40, alarmtijd);
         gameClock.start();
 
@@ -234,7 +223,7 @@ public class GamePanel extends JPanel {
 
             if (!enemy.isAlive()) {
                 // Enemy is dead, award points
-                gameState.money += enemy.getPoints();
+                GameState.money += enemy.getPoints();
                 iterator.remove();
             } else if (enemy.hasReachedEnd()) {
                 // Enemy reached the end, handle accordingly
@@ -258,7 +247,7 @@ public class GamePanel extends JPanel {
         int totalPoints = (int) (100 * Math.pow(1.5, roundNumber - 1));
         currentRound = new Round(totalPoints, 2000);
         enemiesSpawned = 0;
-        isRoundActive = true;
+        boolean isRoundActive = true;
 
         System.out.println("Round " + roundNumber + " started with " + totalPoints + " points.");
 
@@ -269,9 +258,9 @@ public class GamePanel extends JPanel {
     private void spawnNextEnemy() {
         if (enemiesSpawned < currentRound.getEnemiesToSpawn().size()) {
             EnemyTypes enemyTypes = currentRound.getEnemiesToSpawn().get(enemiesSpawned);
-            double speed = enemyTypes.getSpeed();
-            int hp = enemyTypes.getHp();
-            int points = enemyTypes.getPoints();
+            double speed = enemyTypes.speed();
+            int hp = enemyTypes.hp();
+            int points = enemyTypes.points();
             int[][] path = pathfinder.findPath(); // Correctly call the instance method
 
             if (path != null) {
@@ -316,4 +305,15 @@ public class GamePanel extends JPanel {
         System.exit(0); // Exit the game
     }
 
+    public void setConfirmX(int confirmX) {
+        this.confirmX = confirmX;
+    }
+
+    public void setConfirmY(int confirmY) {
+        this.confirmY = confirmY;
+    }
+
+    public void setConfirmCost(int confirmCost) {
+        this.confirmCost = confirmCost;
+    }
 }

@@ -8,9 +8,7 @@ public class Maze {
     public static final int START = 2;
     public static final int END = 3;
     public static final int BUILDING = 4;
-    public static final int MAIN_BUILDING = 4;
     public static int[][] maze;
-    public int tileSize;
     public int pathStarts;
 
     // Constructor
@@ -42,7 +40,6 @@ public class Maze {
         Random rand = new Random();
         for (int x = 1; x <= pathStarts + 1; x ++) {
             if (x > 1) {
-                int startCol = rand.nextInt(COLS);
                 startRow = rand.nextInt(ROWS - 5) + 5;
             }
             int currentRow = startRow;
@@ -189,9 +186,6 @@ public class Maze {
     // Getters for maze data
     public int getCell(int row, int col) {
         return maze[row][col];
-    }
-    public int[][] getMazeGrid() {
-        return maze;
     }
     
     public int[] getStartPosition() {

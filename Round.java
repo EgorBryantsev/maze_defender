@@ -1,6 +1,4 @@
-import javax.lang.model.type.ArrayType;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -53,7 +51,7 @@ public class Round {
 
             EnemyTypes selectedType = possibleTypes.get(rand.nextInt(possibleTypes.size()));
             enemyList.add(selectedType);
-            remainingPoints -= selectedType.getPoints();
+            remainingPoints -= selectedType.points();
         }
 
         return enemyList;
