@@ -22,16 +22,16 @@ public class GameState {
         int x = PADDING;
         int y = PADDING;
 
-        drawInfoBox(g, "Money: " + money, Color.GREEN, x, y, fm);
+        drawInfoBox(g, "Money: " + money, x, y, fm);
         numberOfItems++;
         y += ITEM_HEIGHT + ITEM_SPACING;
 
-        drawInfoBox(g, "Lives: " + lives, Color.RED, x, y, fm);
+        drawInfoBox(g, "Lives: " + lives, x, y, fm);
         numberOfItems++;
         y += ITEM_HEIGHT + ITEM_SPACING;
     }
 
-    private void drawInfoBox(Graphics2D g, String text, Color textColor, int x, int y, FontMetrics fm) {
+    private void drawInfoBox(Graphics2D g, String text, int x, int y, FontMetrics fm) {
         int textWidth = fm.stringWidth(text);
         int textHeight = fm.getHeight();
 
@@ -41,7 +41,7 @@ public class GameState {
         g.setColor(Color.BLACK);
         g.drawRoundRect(x, y, textWidth + 20, ITEM_HEIGHT, 15, 15);
 
-        g.setColor(textColor);
+        g.setColor(Color.WHITE);
         int textX = x + 10;
         int textY = y + ((ITEM_HEIGHT - fm.getHeight()) / 2) + fm.getAscent();
         g.drawString(text, textX, textY);
