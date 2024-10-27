@@ -16,6 +16,8 @@ public class Tower {
     private double cost = 0;
     private int row;  // Row position in the maze
     private int col;  // Column position in the maze
+    public int ovalX;
+    public int ovalY;
 
     private int shootTimer = 0;
     private ArrayList<Projectile> projectiles;
@@ -52,20 +54,8 @@ public class Tower {
 
             // Determine shooting behavior based on tower level
             switch (towerLevel) {
-                case 1:
-                    shootSpinningAttack();
-                    break;
-                case 2:
-                    //shootSingleTarget();
-                    break;
-                case 3:
-                    // Implement another shooting mode, e.g., shootSpreadShot();
-                    break;
-                case 4:
-                    shootSpinningAttack(); // Existing method for level 4
-                    break;
                 default:
-                    // Default shooting behavior if needed
+                    shootSpinningAttack();
                     break;
             }
         }
@@ -92,22 +82,24 @@ public class Tower {
     }
 
     private void shootSpinningAttack() {
-        int towerX = getTowerX() + gamePanel.calculatedTileSize; // Center X
-        int towerY = getTowerY() + gamePanel.calculatedTileSize; // Center Y
+        // Center coordinates for bullets based on the actual middle of the range oval
+        int originX = ovalX + (range * gamePanel.calculatedTileSize);
+        int originY = ovalY + (range * gamePanel.calculatedTileSize);
         int projectileSpeed = 10; // Adjust as needed
-
+    
         // Number of projectiles (e.g., 8 for every 45 degrees)
         int projectilesCount = 8;
         double angleIncrement = 360.0 / projectilesCount;
-
+    
         for (int i = 0; i < projectilesCount; i++) {
-            double angle = Math.toRadians(i * angleIncrement + spinAngle);
-            int targetX = towerX + (int)(Math.cos(angle) * range * gamePanel.calculatedTileSize);
-            int targetY = towerY + (int)(Math.sin(angle) * range * gamePanel.calculatedTileSize);
-
+            double angle = Math.toRadians(i * angleIncrement);
+            int targetX = originX + (int)(Math.cos(angle) * range * gamePanel.calculatedTileSize);
+            int targetY = originY + (int)(Math.sin(angle) * range * gamePanel.calculatedTileSize);
+    
+            // Create projectile originating from the center of the oval
             Projectile p = new Projectile(
-                    towerX,
-                    towerY,
+                    originX,
+                    originY,
                     targetX,
                     targetY,
                     projectileSpeed,
@@ -115,15 +107,10 @@ public class Tower {
             );
             projectiles.add(p);
         }
-
-        // Rotate the pattern for spinning effect
-        spinAngle += 10;
-        if (spinAngle >= 360) {
-            spinAngle = 0;
-        }
     }
-
-
+    
+    
+    
     private Enemy findClosestEnemy(ArrayList<Enemy> enemies) {
         Enemy closest = null;
         int closestDistance = range * gamePanel.calculatedTileSize;  // Maximum range
@@ -182,21 +169,20 @@ public class Tower {
     }
     
     public void draw(Graphics g) {
-
+        // Draw all projectiles
         for (Projectile p : projectiles) {
             p.draw(g);
         }
-
-        int centerX = getTowerX() + gamePanel.calculatedTileSize / 2;
-        int centerY = getTowerY() + gamePanel.calculatedTileSize / 2;
-
-        g.setColor(getLevelColor());
-        g.fillRect(getTowerX(), getTowerY(), 2 * gamePanel.calculatedTileSize, 2 * gamePanel.calculatedTileSize);
-
-        if (towerLevel == 4) {
+        
+        // Draw range circle for max level towers
+        if (towerLevel >= 1) {
             g.setColor(new Color(255, 0, 0, 50));  // Semi-transparent red
             int size = range * 2 * gamePanel.calculatedTileSize;
-            g.fillOval(getTowerX() - size/2, getTowerY() - size/2, size, size);
+            int bottomRightX = getTowerX() + gamePanel.calculatedTileSize / 2;
+            int bottomRightY = getTowerY() + gamePanel.calculatedTileSize / 2;
+            ovalX = bottomRightX - size / 2;
+            ovalY = bottomRightY - size / 2;
+            g.fillOval(ovalX, ovalY, size, size);
         }
     }
     
