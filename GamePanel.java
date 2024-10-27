@@ -17,7 +17,7 @@ public class GamePanel extends JPanel {
     public static boolean playable = true;
     public int calculatedTileSize;
     private static List<Enemy> enemies; // List to manage active enemies
-    private final Pathfinder pathfinder; // To get the path
+    private Pathfinder pathfinder; // To get the path
     private final int DELAY = 16;
     private int xOffset;
     private int yOffset;
@@ -27,7 +27,7 @@ public class GamePanel extends JPanel {
     private int enemiesSpawned;
 
     // Add Clock instance
-    private final Clock gameClock;
+    private Clock gameClock;
     private final GameState gameState;
 
     private int confirmX, confirmY, confirmCost;
@@ -43,9 +43,10 @@ public class GamePanel extends JPanel {
         
         // Initialize final fields first
         this.maze = new Maze();
-        this.pathfinder = new Pathfinder(maze);
         this.gameState = new GameState();
-        this.gameClock = new Clock(10, 10, 100, 40, 60); // 60 seconds alarm time
+        int alarmTime = 60;
+        gameClock = new Clock(alarmTime);
+        gameClock.start(); // 60 seconds alarm time
         
         // Now call reset for other initializations
         resetGame();
@@ -88,11 +89,6 @@ public class GamePanel extends JPanel {
         });
         gameTimer.start();
 
-        // Initialize the clock at position (10, 10), width 100, height 40, and alarm time of 30 seconds
-        int alarmTime = 60;
-        gameClock = new Clock(alarmTime);
-        gameClock.start();
-
         enemies = new ArrayList<>();
         pathfinder = new Pathfinder(maze);
 
@@ -105,14 +101,14 @@ public class GamePanel extends JPanel {
         // Add mouse listener for tower clicks
         Tower tower = new Tower(this);
         this.addMouseListener(tower.new BuildingClicked());
-        
+
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (gameClock.timeOver) {
                     int mouseX = e.getX();
                     int mouseY = e.getY();
-                    int[] bounds = gameClock.getBounds(PADDING, ITEM_HEIGHT * 2 + ITEM_SPACING * 2);
+                    int[] bounds = gameClock.getBounds();
                     if (mouseX >= bounds[0] && mouseX <= (bounds[0] + bounds[2]) &&
                             mouseY >= bounds[1] && mouseY <= (bounds[1] + bounds[3])) {
                         gameClock.reset();
@@ -201,6 +197,8 @@ public class GamePanel extends JPanel {
                                 break;
                             case 9:
                                 Maze.maze[row][col] = 8;
+                                g2d.setColor(Color.ORANGE);
+                                break;
                             case 7:
                                 g.setColor(Color.ORANGE);
                                 break;

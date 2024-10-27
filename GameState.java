@@ -4,20 +4,27 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 public class GameState {
-
     private static final int INITIAL_LIVES = 3;  // or whatever your starting value is
     private static final int INITIAL_MONEY = 300; // or whatever your starting value is
-    
+
+    private static final int PADDING = 10;
+    private static final int ITEM_HEIGHT = 30;
+    private static final int ITEM_SPACING = 10;
+    private static final Font FONT = new Font(Font.SERIF, Font.BOLD, 18);
+    private final int numberOfItems = 2;
+
     public int lives;
     public static int money;
     
     public void reset() {
         lives = INITIAL_LIVES;
         money = INITIAL_MONEY;
+
     }
+
     public void draw(Graphics2D g){
         // Set font for the money text
-        g.setFont(new Font(Font.SERIF, Font.BOLD, 18));
+        g.setFont(FONT);
         
         // Calculate the width of the money text
         String moneyText = "Money: " + money;
@@ -27,11 +34,9 @@ public class GameState {
         int y = PADDING;
 
         drawInfoBox(g, "Money: " + money, x, y, fm);
-        numberOfItems++;
         y += ITEM_HEIGHT + ITEM_SPACING;
 
         drawInfoBox(g, "Lives: " + lives, x, y, fm);
-        numberOfItems++;
         y += ITEM_HEIGHT + ITEM_SPACING;
     }
 
