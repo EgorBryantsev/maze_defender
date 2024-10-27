@@ -8,7 +8,7 @@ public class Tower {
     public int speed;
     public int damage;
     public int range;
-    private static int baseTowerLevel = 1;  // Changed to start at level 1
+    private static int baseTowerLevel = 0;  // Changed to start at level 1
     public int towerLevel;  // Instance-specific tower level
     private boolean confirmationPending = false;
     private int upgradeCost = 0;
@@ -29,6 +29,7 @@ public class Tower {
         this.projectiles = new ArrayList<>();  // Initialize instance tower level
         this.row = row;
         this.col = col;
+        this.towerLevel = baseTowerLevel;
         upgradeTower();  // Set initial stats
     }
 
@@ -130,22 +131,26 @@ public class Tower {
     private int getTowerY() {
         return gamePanel.getYOffset() + (row * gamePanel.calculatedTileSize) + (gamePanel.calculatedTileSize / 2);
     }
-    
+
     public void draw(Graphics g) {
-        // Draw all projectiles
         for (Projectile p : projectiles) {
             p.draw(g);
         }
-        
-        // Draw range circle for max level towers
+
+        g.setColor(getLevelColor());
+        int x = gamePanel.getXOffset() + (col * gamePanel.calculatedTileSize);
+        int y = gamePanel.getYOffset() + (row * gamePanel.calculatedTileSize);
+        int size = gamePanel.calculatedTileSize * 2; // Because towers are 2x2 tiles
+        g.fillRect(x, y, size, size);
+
         if (towerLevel >= 1) {
             g.setColor(new Color(255, 0, 0, 50));  // Semi-transparent red
-            int size = range * 2 * gamePanel.calculatedTileSize;
-            int bottomRightX = getTowerX() + gamePanel.calculatedTileSize / 2;
-            int bottomRightY = getTowerY() + gamePanel.calculatedTileSize / 2;
-            ovalX = bottomRightX - size / 2;
-            ovalY = bottomRightY - size / 2;
-            g.fillOval(ovalX, ovalY, size, size);
+            int circleSize = range * 2 * gamePanel.calculatedTileSize;
+            int centerX = x + size / 2;
+            int centerY = y + size / 2;
+            ovalX = centerX - circleSize / 2;
+            ovalY = centerY - circleSize / 2;
+            g.fillOval(ovalX, ovalY, circleSize, circleSize);
         }
     }
     
@@ -166,7 +171,7 @@ public class Tower {
             int col = (e.getX() - (gamePanel.getWidth() - gamePanel.panelWidth) / 2) / gamePanel.calculatedTileSize;
             int row = (e.getY() - (gamePanel.getHeight() - gamePanel.panelHeight) / 2) / gamePanel.calculatedTileSize;
 
-            if (isBuilding(row, col) || isBuilding(row - 1, col) || isBuilding(row, col - 1) || isBuilding(row - 1, col - 1)) {
+            if (gamePanel.isBuilding(row, col) || gamePanel.isBuilding(row - 1, col) || gamePanel.isBuilding(row, col - 1) || gamePanel.isBuilding(row - 1, col - 1)) {
 
                 // Show a confirmation dialog with the upgrade cost
                 int confirm = JOptionPane.showConfirmDialog(
@@ -178,10 +183,10 @@ public class Tower {
 
                 if (confirm == JOptionPane.YES_OPTION) {
                     // Determine the top-left tile of the tower
-                    int towerRow = isBuilding(row, col) ? row : (isBuilding(row - 1, col) ? row - 1 :
-                            (isBuilding(row, col - 1) ? row : row - 1));
-                    int towerCol = isBuilding(row, col) ? col : (isBuilding(row - 1, col) ? col :
-                            (isBuilding(row, col - 1) ? col - 1 : col - 1));
+                    int towerRow = gamePanel.isBuilding(row, col) ? row : (gamePanel.isBuilding(row - 1, col) ? row - 1 :
+                            (gamePanel.isBuilding(row, col - 1) ? row : row - 1));
+                    int towerCol = gamePanel.isBuilding(row, col) ? col : (gamePanel.isBuilding(row - 1, col) ? col :
+                            (gamePanel.isBuilding(row, col - 1) ? col - 1 : col - 1));
 
 
                     Tower existingTower = findTowerAt(towerRow, towerCol);
@@ -195,21 +200,6 @@ public class Tower {
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         
         private void addNewTower(int row, int col) {
             Tower newTower = new Tower(gamePanel, row, col);
@@ -235,15 +225,6 @@ public class Tower {
             case 4: return Color.RED;
             default: return Color.GRAY;
         }
-    }
-
-    private boolean isBuilding(int row, int col) {
-        return row >= 0 && col >= 0 &&
-                row < Maze.ROWS - 1 && col < Maze.COLS - 1 &&
-                Maze.maze[row][col] >= 4 &&
-                Maze.maze[row][col] == Maze.maze[row + 1][col] &&
-                Maze.maze[row][col] == Maze.maze[row][col + 1] &&
-                Maze.maze[row + 1][col + 1] == Maze.maze[row][col];
     }
 
     private void buildingNewLevel(int row, int col) {

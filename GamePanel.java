@@ -77,31 +77,47 @@ public class GamePanel extends JPanel {
         }
     }
 
-    // Reset method to initialize/reset all variables
     public void resetGame() {
-        // Reset static variables
+
         GamePanel.playable = true;
         GamePanel.enemies = new ArrayList<>();
         towers = new ArrayList<>();
 
-        // Reset instance variables
         this.currentRoundNumber = 1;
         this.enemiesSpawned = 0;
         if (this.spawnTimer != null && this.spawnTimer.isRunning()) {
             this.spawnTimer.stop();
         }
-        
-        // Reset game state and components
+
         this.gameState.reset();
         this.gameClock.reset();
         this.maze.regenerateMaze();
-        
-        // Reset UI elements
+
         this.showConfirm = false;
         this.confirmX = 0;
         this.confirmY = 0;
         this.confirmCost = 0;
-        
+
+        boolean[][] visited = new boolean[Maze.ROWS][Maze.COLS];
+        for (int row = 0; row < Maze.ROWS - 1; row++) {
+            for (int col = 0; col < Maze.COLS - 1; col++) {
+                // Skip if this tile is already part of a processed building
+                if (visited[row][col]) continue;
+
+                if (isBuilding(row, col)) {
+                    // Add a new Tower at the top-left corner of the building
+                    Tower newTower = new Tower(this, row, col);
+                    towers.add(newTower);
+
+                    // Mark the 2x2 building area as visited
+                    visited[row][col] = true;
+                    visited[row + 1][col] = true;
+                    visited[row][col + 1] = true;
+                    visited[row + 1][col + 1] = true;
+                }
+            }
+        }
+
         updateSize();
         
         // Start new round
@@ -172,16 +188,14 @@ public class GamePanel extends JPanel {
     }
 
     public Tower getTower(int row, int col) {
-        for (int x = 0; x < Maze.ROWS; x ++) {
-            for (int y = 0; y < Maze.COLS; y++) {
-                if (Maze.maze[x][y] >= 5) {
-                    row = x;
-                    col = y;
-                }
+        for (Tower tower : towers) {
+            if (tower.getRow() == row && tower.getCol() == col) {
+                return tower;
             }
         }
-        return null; // Placeholder, replace with actual fetching logic
+        return null;
     }
+
 
     /**
      * Update the panel size based on the current window size.
@@ -441,6 +455,15 @@ public class GamePanel extends JPanel {
         /* JOptionPane.showMessageDialog(this, "Game Over! You have lost all your lives.", "Game Over", JOptionPane.INFORMATION_MESSAGE);
         System.exit(0); // Exit the game */
         GamePanel.playable = false;
+    }
+
+    public boolean isBuilding(int row, int col) {
+        return row >= 0 && col >= 0 &&
+                row < Maze.ROWS - 1 && col < Maze.COLS - 1 &&
+                Maze.maze[row][col] >= 4 &&
+                Maze.maze[row][col] == Maze.maze[row + 1][col] &&
+                Maze.maze[row][col] == Maze.maze[row][col + 1] &&
+                Maze.maze[row + 1][col + 1] == Maze.maze[row][col];
     }
 
     public void setConfirmX(int confirmX) {
