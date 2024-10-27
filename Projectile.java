@@ -2,10 +2,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class Projectile {
-    public int x, y;           // Current position
-    private int targetX, targetY;  // Where it's going
-    private int speed;         // How fast it moves
-    private int damage;        // How much damage it does
+    public int x, y;
+    private int targetX, targetY;
+    private int speed;
+    private int damage;
     
     public Projectile(int startX, int startY, int targetX, int targetY, int speed, int damage) {
         this.x = startX;

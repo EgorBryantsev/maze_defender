@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Round {
     private final int totalPoints;
-    public final int spawnFrequency; // in milliseconds
+    public final int spawnFrequency;
     private final List<EnemyTypes> enemiesToSpawn;
 
     public Round(int totalPoints, int spawnFrequency) {
@@ -48,7 +48,7 @@ public class Round {
             }
 
             if (possibleTypes.isEmpty()) {
-                break; // No more enemy types can be spawned with remaining points
+                break; 
             }
 
             EnemyTypes selectedType = possibleTypes.get(rand.nextInt(possibleTypes.size()));

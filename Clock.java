@@ -1,4 +1,3 @@
-// Clock.java
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -23,14 +22,14 @@ public class Clock {
 
     /**
      * Update the clock's state.
-     * @param s The time delta in seconds (not used in current implementation).
+     * @param s The time delta in seconds 
      */
     public void move(float s){
         runs();
     }
 
     /**
-     * Reset the clock to its initial state.
+     * Reset the clock to start a new wave
      */
     public void reset(){
         timePassed = 0;
@@ -43,9 +42,9 @@ public class Clock {
      * Start the clock.
      */
     public void start() {
-        status = true;  // Set clock to running state
+        status = true; 
         message = "Time " + (alarmTime - timePassed);
-        previousTime = System.nanoTime();  // Set the start time
+        previousTime = System.nanoTime();
     }
 
 
@@ -70,15 +69,15 @@ public class Clock {
         }
     }
 
-
+    // Drawing the clock, width is dependent on textlength
     public void draw(Graphics2D g, int x, int y){
         Font font = new Font(Font.SERIF, Font.BOLD, 18);
         g.setFont(font);
         FontMetrics fm = g.getFontMetrics();
-        int textWidth = fm.stringWidth(message) + 20; // Added padding
+        int textWidth = fm.stringWidth(message) + 20;
 
         g.setColor(Color.DARK_GRAY);
-        g.fillRoundRect(x, y, textWidth, 40, 15, 15); // Rounded corners for aesthetics
+        g.fillRoundRect(x, y, textWidth, 40, 15, 15);
         g.setColor(Color.BLACK);
         g.drawRoundRect(x, y, textWidth, 40, 15, 15);
         g.setColor(Color.WHITE);

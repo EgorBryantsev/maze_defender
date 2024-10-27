@@ -196,6 +196,21 @@ public class Tower {
             }
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
         private void addNewTower(int row, int col) {
             Tower newTower = new Tower(gamePanel, row, col);
             gamePanel.addTower(newTower);

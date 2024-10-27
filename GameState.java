@@ -4,8 +4,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 public class GameState {
-    private static final int INITIAL_LIVES = 10;  // or whatever your starting value is
-    private static final int INITIAL_MONEY = 500; // or whatever your starting value is
+    private static final int INITIAL_LIVES = 10;  // Amount of lives before game over
+    private static final int INITIAL_MONEY = 500; // Amount of money player starts with
 
     private static final int PADDING = 10;
     private static final int ITEM_HEIGHT = 30;
@@ -23,7 +23,6 @@ public class GameState {
     }
 
     public void draw(Graphics2D g){
-        // Set font for the money text
         g.setFont(FONT);
         
         // Calculate the width of the money text

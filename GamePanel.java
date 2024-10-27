@@ -20,8 +20,8 @@ public class GamePanel extends JPanel {
     public static int panelHeight;
     public static boolean playable = true;
     public int calculatedTileSize;
-    private static List<Enemy> enemies; // List to manage active enemies
-    private Pathfinder pathfinder; // To get the path
+    private static List<Enemy> enemies;
+    private Pathfinder pathfinder;
     private final int DELAY = 16;
     private int xOffset;
     private int yOffset;
@@ -30,12 +30,11 @@ public class GamePanel extends JPanel {
     private Timer spawnTimer;
     private int enemiesSpawned;
     private List<Tower> towers = new ArrayList<>();
-    private boolean roundComplete = false; // Add this flag at the class level
+    private boolean roundComplete = false;
 
     private BufferedImage stoneWallTexture;
     private BufferedImage floorTileTexture;
 
-    // Add Clock instance
     private Clock gameClock;
     private final GameState gameState;
 

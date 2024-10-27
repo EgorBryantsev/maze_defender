@@ -1,5 +1,6 @@
 import java.awt.Color;
 
+// The different kind of enemies with different stats
 public record EnemyTypes(double speed, int hp, int points, Color color, double sizeRatio) {
 
     public static final EnemyTypes BASIC = new EnemyTypes(2.0, 100, 10, Color.RED, 0.8);

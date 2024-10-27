@@ -2,18 +2,19 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class Enemy {
-    private int currentPathIndex; // Location
+    private int currentPathIndex;
     private double progress;
-    private int hp; // Current health
-    private final int maxHp; // Maximum health
+    private int hp;
+    private final int maxHp;
     private final double speed;
     private final int points;
-    private final int[][] path; // Path
-    private final EnemyTypes type; // Enemy type
+    private final int[][] path;
+    private final EnemyTypes type;
 
+    // Get position, for aimed bullets
     public double[] getPosition(int calculatedTileSize, int xOffset, int yOffset) {
         if (currentPathIndex >= path.length) {
-            return new double[]{0, 0}; // Return default position if path is complete
+            return new double[]{0, 0};
         }
     
         // Current and next cells
@@ -31,6 +32,7 @@ public class Enemy {
         return new double[]{pixelX, pixelY};
     }
 
+    // Constructor Enemy
     public Enemy(int[][] path, EnemyTypes type) {
         this.path = path;
         this.type = type;
@@ -38,7 +40,7 @@ public class Enemy {
         this.hp = type.hp();
         this.maxHp = type.hp();
         this.points = type.points();
-        this.currentPathIndex = 0; // Start moving towards the first step
+        this.currentPathIndex = 0;
         this.progress = 0.0;
     }
 
@@ -70,7 +72,7 @@ public class Enemy {
 
     public void draw(Graphics g, int tileSize, int xOffset, int yOffset) {
         if (currentPathIndex >= path.length) {
-            return; // Nothing to draw
+            return;
         }
 
         // Current and next cells
@@ -103,7 +105,6 @@ public class Enemy {
         g.drawRect(barX, barY, barWidth, barHeight);
         
     }
-
-    // Getters
+    
     public int getPoints() { return points; }
 }

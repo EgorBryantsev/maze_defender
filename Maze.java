@@ -26,18 +26,17 @@ public class Maze {
     public Maze() {
         maze = new int[ROWS][COLS];
         generateMaze();
-        placeGraySquares();  // Place 2x2 gray squares after generating the maze
-        //addMouseListener(new buildingClicked());
+        placeGraySquares();  // These are the spots Towers will be built on
         
     }
 
-    // Generate a maze where initially the entire grid is walls (1)
-    // and then carve a random path from the first column to the last column.
+    // Generate a maze where initially the entire grid is walls (maze[][] = 1)
+    // Carve a random path from the first column to the last column.
     private void generateMaze() {
         // Initialize all tiles to walls
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLS; col++) {
-                maze[row][col] = WALL;  // 1 represents a wall
+                maze[row][col] = WALL;
             }
         }
 
@@ -56,9 +55,9 @@ public class Maze {
             }
             int currentRow = startRow;
 
-            // Random walk to carve a path to the last column
+            // Path to the last column
             for (int col = 1; col < COLS - 1; col++) {
-                maze[currentRow][col] = PATH;  // Carve a path
+                maze[currentRow][col] = PATH; 
                 // Randomly decide to move up, down, or stay in the same row
                 int move = rand.nextInt(3);  // 0: up, 1: same, 2: down
                 if (move == 0 && currentRow > 0) {
@@ -87,7 +86,7 @@ public class Maze {
                     makePath(currentRow, col);
                 }
 
-                // Handle backward steps with a small probability
+                // Backwards path with a small probability
                 int back = rand.nextInt(10);
                 int stepsBack = rand.nextInt(3) + 1;
                 if (back == 0 && col > stepsBack + 1) {
@@ -135,6 +134,7 @@ public class Maze {
         maze[randomRow][randomCol] = PATH;
     }
 
+    // If there is a square (or larger) of just path tiles, it will remove some paths
     private void checkSquare(int x, int y) {
         boolean up = (y > 0) && (maze[y - 1][x] == PATH);
         boolean down = (y < ROWS - 1) && (maze[y + 1][x] == PATH);
@@ -157,7 +157,7 @@ public class Maze {
         }
     }
 
-    // Method to place five 2x2 gray squares next to the path
+    // Ensure 2x2 gray squares next to the path
     private void placeGraySquares() {
         Random rand = new Random();
         int squaresPlaced = 0;
@@ -171,9 +171,9 @@ public class Maze {
             if (maze[row][col] == 1 && maze[row + 1][col] == 1 &&
                     maze[row][col + 1] == 1 && maze[row + 1][col + 1] == 1 &&
                     connectToPath(row, col)) {
-                //maybe make this into a separate function
 
-                // Place a 2x2 square of gray tiles (4)
+
+                // Place a 2x2 square of gray tiles (maze[][] = 4)
                 maze[row][col] = BUILDING;
                 maze[row + 1][col] = BUILDING;
                 maze[row][col + 1] = BUILDING;
