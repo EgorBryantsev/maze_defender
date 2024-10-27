@@ -11,6 +11,26 @@ public class Enemy {
     private final int[][] path; // Path
     private final EnemyTypes type; // Enemy type
 
+    public double[] getPosition(int calculatedTileSize, int xOffset, int yOffset) {
+        if (currentPathIndex >= path.length) {
+            return new double[]{0, 0}; // Return default position if path is complete
+        }
+    
+        // Current and next cells
+        int[] currentCell = path[currentPathIndex];
+        int[] nextCell = (currentPathIndex < path.length - 1) ? path[currentPathIndex + 1] : currentCell;
+    
+        // Interpolated position based on progress
+        double interpRow = currentCell[0] + (nextCell[0] - currentCell[0]) * progress;
+        double interpCol = currentCell[1] + (nextCell[1] - currentCell[1]) * progress;
+    
+        // Convert to pixel coordinates
+        double pixelX = xOffset + ((interpCol + 0.5) * calculatedTileSize);
+        double pixelY = yOffset + ((interpRow + 0.5) * calculatedTileSize);
+    
+        return new double[]{pixelX, pixelY};
+    }
+
     public Enemy(int[][] path, EnemyTypes type) {
         this.path = path;
         this.type = type;
@@ -78,6 +98,7 @@ public class Enemy {
         g.fillRect(barX, barY, (int)((hp / (double)maxHp) * barWidth), barHeight);
         g.setColor(Color.BLACK);
         g.drawRect(barX, barY, barWidth, barHeight);
+        
     }
 
     // Getters

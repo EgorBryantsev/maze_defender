@@ -160,6 +160,18 @@ public class GamePanel extends JPanel {
         this.yOffset = (getHeight() - panelHeight) / 2;
     }
 
+    public static List<Enemy> getEnemies() {
+        return enemies;
+    }
+    
+    public int getXOffset() {
+        return xOffset;
+    }
+    
+    public int getYOffset() {
+        return yOffset;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -171,6 +183,12 @@ public class GamePanel extends JPanel {
         for (int row = 0; row < Maze.ROWS; row++) {
             for (int col = 0; col < Maze.COLS; col++) {
                 int cell = maze.getCell(row, col);
+                if (Maze.maze[row][col] >= 5) {
+                    Tower tower = getTower(row, col);
+                    if (tower != null) {
+                        tower.draw(g);
+                    }
+                }
                 switch (cell) {
                     case Maze.WALL:
                         g.setColor(Color.BLACK);
@@ -228,6 +246,17 @@ public class GamePanel extends JPanel {
             enemy.draw(g, calculatedTileSize, xOffset, yOffset);
         }
 
+        for (int row = 0; row < Maze.ROWS; row++) {
+            for (int col = 0; col < Maze.COLS; col++) {
+                if (Maze.maze[row][col] >= 5) {
+                    Tower tower = getTower(row, col);
+                    if (tower != null) {
+                        tower.draw(g);
+                    }
+                }
+            }
+        }
+
         // Draw the GameState items (Money and Lives)
         gameState.draw(g2d);
 
@@ -268,6 +297,17 @@ public class GamePanel extends JPanel {
                 if (gameState.lives <= 0) {
                     gameOver();
                     return;
+                }
+            }
+        }
+
+        for (int row = 0; row < Maze.ROWS; row++) {
+            for (int col = 0; col < Maze.COLS; col++) {
+                if (Maze.maze[row][col] >= 5) {  // If it's a tower
+                    Tower tower = getTower(row, col);
+                    if (tower != null) {
+                        tower.update();
+                    }
                 }
             }
         }
