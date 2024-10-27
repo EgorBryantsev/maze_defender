@@ -11,12 +11,24 @@ public class Maze {
     public static int[][] maze;
     public int pathStarts;
 
+    public void regenerateMaze() {
+        maze = new int[ROWS][COLS];
+        generateMaze();
+        placeGraySquares();
+        Pathfinder pathChecker = new Pathfinder(this);
+        if (pathChecker.findPath() == null) {
+            System.out.println("Debug: Invalid maze generated, regenerating...");
+            regenerateMaze();  // Recursively try again
+        }
+    }
+
     // Constructor
     public Maze() {
         maze = new int[ROWS][COLS];
         generateMaze();
         placeGraySquares();  // Place 2x2 gray squares after generating the maze
         //addMouseListener(new buildingClicked());
+        
     }
 
     // Generate a maze where initially the entire grid is walls (1)

@@ -1,7 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -32,47 +31,62 @@ public class GamePanel extends JPanel {
     private final GameState gameState;
 
     private int confirmX, confirmY, confirmCost;
-    private boolean showConfirm = false; // Track if the confirmation message is visible
+    private boolean showConfirm = false;
 
     // Constructor
     public GamePanel() {
         this.setBackground(Color.DARK_GRAY);
+        
+        // Initialize final fields first
+        this.maze = new Maze();
+        this.pathfinder = new Pathfinder(maze);
+        this.gameState = new GameState();
+        this.gameClock = new Clock(10, 10, 100, 40, 60); // 60 seconds alarm time
+        
+        // Now call reset for other initializations
+        resetGame();
+        setupEventListeners();
+    }
 
-        maze = new Maze(); // Initialize the maze
-
-        currentRoundNumber = 1;
+    // Reset method to initialize/reset all variables
+    public void resetGame() {
+        // Reset static variables
+        GamePanel.playable = true;
+        GamePanel.enemies = new ArrayList<>();
+        
+        // Reset instance variables
+        this.currentRoundNumber = 1;
+        this.enemiesSpawned = 0;
+        if (this.spawnTimer != null && this.spawnTimer.isRunning()) {
+            this.spawnTimer.stop();
+        }
+        
+        // Reset game state and components
+        this.gameState.reset();
+        this.gameClock.reset();
+        this.maze.regenerateMaze();
+        
+        // Reset UI elements
+        this.showConfirm = false;
+        this.confirmX = 0;
+        this.confirmY = 0;
+        this.confirmCost = 0;
+        
+        updateSize();
+        
+        // Start new round
         startNewRound(currentRoundNumber);
-
-        gameState = new GameState();
-
+    }
+    
+    private void setupEventListeners() {
         Timer gameTimer = new Timer(DELAY, e -> {
             updateGameState();
         });
-        
-
-        // Start the timer
         gameTimer.start();
 
-        // Initialize the clock at position (10, 10), width 100, height 40, and alarm time of 30 seconds
-        int alarmTime = 60;
-        gameClock = new Clock(10, 10, 100, 40, alarmTime);
-        gameClock.start();
-
-        //enemies
-        enemies = new ArrayList<>();
-        pathfinder = new Pathfinder(maze);
-
-        updateSize();
-
-        currentRoundNumber = 1;
-        startNewRound(currentRoundNumber);
-        spawnTimer = new Timer(0, null);
-
-        // Add mouse listener for tower clicks
         Tower tower = new Tower(this);
         this.addMouseListener(tower.new BuildingClicked());
-
-        // Add mouse listener for clock clicks (keep this if you want both click and spacebar reset)
+        
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -89,20 +103,16 @@ public class GamePanel extends JPanel {
             }
         });
 
-        // Add key listener for spacebar to start a new wave
-        this.setFocusable(true); // Make sure the panel can receive key events
+        this.setFocusable(true);
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_SPACE && gameClock.timeOver) {
-                    // Reset and start a new wave when spacebar is pressed
                     gameClock.reset();
                     gameClock.start();
                 }
             }
         });
-
-        Image buidlingUpgrade = new ImageIcon("upgrade-svgrepo-com.png").getImage();
     }
 
     // Method to spawn an enemy
@@ -229,15 +239,13 @@ public class GamePanel extends JPanel {
                 GameState.money += enemy.getPoints();
                 iterator.remove();
             } else if (enemy.hasReachedEnd()) {
-                // Enemy reached the end, handle accordingly
-                // For example, reduce player lives or money
                 System.out.println("Enemy reached the end!");
                 gameState.lives -= 1;
                 iterator.remove();
 
                 if (gameState.lives <= 0) {
                     gameOver();
-                    return; // Exit early to prevent further updates
+                    return;
                 }
             }
         }

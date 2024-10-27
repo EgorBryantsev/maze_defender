@@ -21,16 +21,18 @@ public class MazeDefenderGame {
         restartTimer.start();
     }
 
-    // Start a new game by initializing GamePanel
     public static void startNewGame() {
-        gamePanel = new GamePanel();
-        window.getContentPane().removeAll();  // Clear old game content
-        window.add(gamePanel);                // Add new game panel
-        window.revalidate();                  // Refresh the window layout
+        if (gamePanel != null) {
+            gamePanel.resetGame();
+        } else {
+            gamePanel = new GamePanel();
+        }
+        
+        window.getContentPane().removeAll();
+        window.add(gamePanel);
+        window.revalidate();
         window.repaint();
         window.setVisible(true);
-        
-        GamePanel.playable = true;            // Set game as playable
     }
 
     // Restart the game

@@ -4,9 +4,17 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 public class GameState {
-    public static int money = 300;
-    public int lives = 5;
 
+    private static final int INITIAL_LIVES = 3;  // or whatever your starting value is
+    private static final int INITIAL_MONEY = 300; // or whatever your starting value is
+    
+    public int lives;
+    public static int money;
+    
+    public void reset() {
+        lives = INITIAL_LIVES;
+        money = INITIAL_MONEY;
+    }
     public void draw(Graphics2D g){
         // Set font for the money text
         g.setFont(new Font(Font.SERIF, Font.BOLD, 18));
