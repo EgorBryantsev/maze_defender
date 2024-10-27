@@ -214,13 +214,19 @@ public class Tower {
                 );
 
                 if (confirm == JOptionPane.YES_OPTION) {
-                    // Find the existing tower at the clicked position
-                    Tower existingTower = findTowerAt(row, col);
+                    // Determine the top-left tile of the tower
+                    int towerRow = isBuilding(row, col) ? row : (isBuilding(row - 1, col) ? row - 1 :
+                            (isBuilding(row, col - 1) ? row : row - 1));
+                    int towerCol = isBuilding(row, col) ? col : (isBuilding(row - 1, col) ? col :
+                            (isBuilding(row, col - 1) ? col - 1 : col - 1));
+
+
+                    Tower existingTower = findTowerAt(towerRow, towerCol);
                     if (existingTower != null) {
-                        existingTower.buildingNewLevel(row, col);
+                        existingTower.buildingNewLevel(towerRow, towerCol);
                     } else {
-                        // If no tower exists, add a new one
-                        addNewTower(row, col);
+
+                        addNewTower(towerRow, towerCol);
                     }
                     gamePanel.repaint();
                 }
@@ -256,8 +262,10 @@ public class Tower {
     private boolean isBuilding(int row, int col) {
         return row >= 0 && col >= 0 &&
                 row < Maze.ROWS - 1 && col < Maze.COLS - 1 &&
-                Maze.maze[row][col] >= 4 && Maze.maze[row][col] == Maze.maze[row + 1][col] &&
-                Maze.maze[row][col] == Maze.maze[row][col + 1] && Maze.maze[row + 1][col + 1] == Maze.maze[row][col];
+                Maze.maze[row][col] >= 4 &&
+                Maze.maze[row][col] == Maze.maze[row + 1][col] &&
+                Maze.maze[row][col] == Maze.maze[row][col + 1] &&
+                Maze.maze[row + 1][col + 1] == Maze.maze[row][col];
     }
 
     private void buildingNewLevel(int row, int col) {
