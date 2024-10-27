@@ -75,7 +75,7 @@ public class Clock {
      * @param g The Graphics2D object to draw with.
      */
     public void draw(Graphics2D g, int x, int y){
-        Font font = new Font(Font.SERIF, Font.ITALIC, 18);
+        Font font = new Font(Font.SERIF, Font.BOLD, 18);
         g.setFont(font);
         FontMetrics fm = g.getFontMetrics();
         int textWidth = fm.stringWidth(message) + 20; // Added padding
@@ -89,7 +89,7 @@ public class Clock {
         g.drawRoundRect(x, y, textWidth, 40, 15, 15);
 
         // Draw the text
-        g.setColor(Color.RED);
+        g.setColor(Color.WHITE);
         // Vertically center the text
         int textX = x + 10;
         int textY = y + ((40 - fm.getHeight()) / 2) + fm.getAscent();
