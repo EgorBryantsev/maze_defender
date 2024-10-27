@@ -14,48 +14,67 @@ public class Tower {
     private int upgradeCost = 0;
     private double costMultiplier = 0;
     private double cost = 0;
+    private int row;  // Row position in the maze
+    private int col;  // Column position in the maze
 
     private int shootTimer = 0;
     private ArrayList<Projectile> projectiles;
     private int spinAngle = 0;
     
-    public Tower(GamePanel gamePanel) {
+    public Tower(GamePanel gamePanel, int row, int col) {
         this.gamePanel = gamePanel;
         this.projectiles = new ArrayList<>();
         this.towerLevel = baseTowerLevel;  // Initialize instance tower level
-        //upgradeTower();  // Set initial stats
+        this.row = row;
+        this.col = col;
+        upgradeTower();  // Set initial stats
     }
-    
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getCol() {
+        return col;
+    }
+
     public void update() {
-        // Increase timer
+        // Skip if tower is inactive
         if (towerLevel == 0) return;
 
+        // Increment the shoot timer
         shootTimer++;
-        
+
         // Check if it's time to shoot based on tower speed
-        if (shootTimer >= 60 / speed) {  // 60 frames = 1 second
+        // speed represents shots per second
+        if (shootTimer >= 60 / speed) {  // Assuming 60 frames per second
             shootTimer = 0;  // Reset timer
-            
-            // Get list of enemies from GamePanel
-            ArrayList<Enemy> enemies = new ArrayList<>(GamePanel.getEnemies());
-            
-            if (towerLevel == 4) {
-                // Max level: spinning attack
-                shootSpinningAttack();
-            } else if (!enemies.isEmpty()) {  // Only try to shoot if there are enemies
-                // Normal levels: shoot closest enemy
-                Enemy target = findClosestEnemy(enemies);
-                if (target != null) {
-                    shootAt(target);
-                }
+
+            // Determine shooting behavior based on tower level
+            switch (towerLevel) {
+                case 1:
+                    shootSpinningAttack();
+                    break;
+                case 2:
+                    //shootSingleTarget();
+                    break;
+                case 3:
+                    // Implement another shooting mode, e.g., shootSpreadShot();
+                    break;
+                case 4:
+                    shootSpinningAttack(); // Existing method for level 4
+                    break;
+                default:
+                    // Default shooting behavior if needed
+                    break;
             }
         }
-        
+
         // Update all projectiles
         for (int i = projectiles.size() - 1; i >= 0; i--) {
             Projectile p = projectiles.get(i);
             p.move();
-            
+
             // Check if projectile hit any enemy
             for (Enemy enemy : GamePanel.getEnemies()) {
                 if (isHitting(p, enemy)) {
@@ -64,38 +83,37 @@ public class Tower {
                     break;
                 }
             }
-            
+
             // Remove projectiles that went too far
             if (isProjectileOutOfRange(p)) {
                 projectiles.remove(i);
             }
         }
     }
-    
+
     private void shootSpinningAttack() {
-        // Create 8 projectiles in a circle
-        for (int i = 0; i < 8; i++) {
-            // Calculate positions in a circle
-            double angle = spinAngle + (i * 45);  // 360 degrees / 8 = 45 degrees
-            int targetX = getTowerX() + (int)(Math.cos(Math.toRadians(angle)) * 100);
-            int targetY = getTowerY() + (int)(Math.sin(Math.toRadians(angle)) * 100);
-            
-            // Create projectile
+        int towerX = getTowerX();
+        int towerY = getTowerY();
+        int projectileSpeed = 10; // Adjust as needed
+
+        // Number of projectiles (e.g., 8 for every 45 degrees)
+        int projectilesCount = 8;
+        double angleIncrement = 360.0 / projectilesCount;
+
+        for (int i = 0; i < projectilesCount; i++) {
+            double angle = Math.toRadians(i * angleIncrement);
+            int targetX = towerX + (int)(Math.cos(angle) * range * gamePanel.calculatedTileSize);
+            int targetY = towerY + (int)(Math.sin(angle) * range * gamePanel.calculatedTileSize);
+
             Projectile p = new Projectile(
-                getTowerX(),
-                getTowerY(),
-                targetX,
-                targetY,
-                10,  // Speed
-                damage
+                    towerX,
+                    towerY,
+                    targetX,
+                    targetY,
+                    projectileSpeed,
+                    damage
             );
             projectiles.add(p);
-        }
-        
-        // Rotate the pattern
-        spinAngle += 10;
-        if (spinAngle >= 360) {
-            spinAngle = 0;
         }
     }
     
@@ -146,32 +164,14 @@ public class Tower {
         int dy = p.y - getTowerY();
         return Math.sqrt(dx * dx + dy * dy) > range * gamePanel.calculatedTileSize;
     }
-    
+
     // Get tower position (center of the tower)
     private int getTowerX() {
-        // Find tower in maze and return its X position
-        for (int row = 0; row < Maze.ROWS; row++) {
-            for (int col = 0; col < Maze.COLS; col++) {
-                if (Maze.maze[row][col] >= 5) {
-                    return gamePanel.getXOffset() + (col * gamePanel.calculatedTileSize) + 
-                           (gamePanel.calculatedTileSize);
-                }
-            }
-        }
-        return 0;
+        return gamePanel.getXOffset() + (col * gamePanel.calculatedTileSize) + (gamePanel.calculatedTileSize / 2);
     }
-    
+
     private int getTowerY() {
-        // Find tower in maze and return its Y position
-        for (int row = 0; row < Maze.ROWS; row++) {
-            for (int col = 0; col < Maze.COLS; col++) {
-                if (Maze.maze[row][col] >= 5) {
-                    return gamePanel.getYOffset() + (row * gamePanel.calculatedTileSize) + 
-                           (gamePanel.calculatedTileSize);
-                }
-            }
-        }
-        return 0;
+        return gamePanel.getYOffset() + (row * gamePanel.calculatedTileSize) + (gamePanel.calculatedTileSize / 2);
     }
     
     public void draw(Graphics g) {
@@ -213,29 +213,33 @@ public class Tower {
                     JOptionPane.YES_NO_OPTION
                 );
 
-                if (isBuilding(row, col)) {
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        buildingNewLevel(row, col);
-                        gamePanel.repaint();
+                if (confirm == JOptionPane.YES_OPTION) {
+                    // Find the existing tower at the clicked position
+                    Tower existingTower = findTowerAt(row, col);
+                    if (existingTower != null) {
+                        existingTower.buildingNewLevel(row, col);
+                    } else {
+                        // If no tower exists, add a new one
+                        addNewTower(row, col);
                     }
-                } else if (isBuilding(row - 1, col)) {
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        buildingNewLevel(row - 1, col);
-                        gamePanel.repaint();
-                    }
-                } else if (isBuilding(row, col - 1)) {
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        buildingNewLevel(row, col - 1);
-                        gamePanel.repaint();
-                    }
-                } else if (isBuilding(row - 1, col - 1)) {
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        buildingNewLevel(row - 1, col - 1);
-                        gamePanel.repaint();
-                    }
+                    gamePanel.repaint();
                 }
-
             }
+        }
+
+        private void addNewTower(int row, int col) {
+            Tower newTower = new Tower(gamePanel, row, col);
+            gamePanel.addTower(newTower);
+        }
+
+        // Helper method to find a tower at a specific position
+        private Tower findTowerAt(int row, int col) {
+            for (Tower tower : gamePanel.getTowers()) {
+                if (tower.getRow() == row && tower.getCol() == col) {
+                    return tower;
+                }
+            }
+            return null;
         }
     }
 
@@ -261,15 +265,16 @@ public class Tower {
         cost = 100 + 100 * costMultiplier;
         if (GameState.money >= cost) {
             GameState.money -= cost;
-            towerLevel ++;
-            upgradeTower();
+            towerLevel++;
+            upgradeTower();  // Update tower attributes based on new level
             if (newState > 7) newState = 8;
             Maze.maze[row][col] = newState;
             Maze.maze[row + 1][col] = newState;
             Maze.maze[row][col + 1] = newState;
             Maze.maze[row + 1][col + 1] = newState;
         } else {
-
+            // Optionally, notify the player about insufficient funds
+            JOptionPane.showMessageDialog(gamePanel, "Not enough money to upgrade!", "Upgrade Failed", JOptionPane.WARNING_MESSAGE);
         }
     }
 }

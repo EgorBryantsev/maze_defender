@@ -29,6 +29,7 @@ public class GamePanel extends JPanel {
     private int currentRoundNumber;
     private Timer spawnTimer;
     private int enemiesSpawned;
+    private List<Tower> towers = new ArrayList<>();
 
     private BufferedImage stoneWallTexture;
     private BufferedImage floorTileTexture;
@@ -81,7 +82,8 @@ public class GamePanel extends JPanel {
         // Reset static variables
         GamePanel.playable = true;
         GamePanel.enemies = new ArrayList<>();
-        
+        towers = new ArrayList<>();
+
         // Reset instance variables
         this.currentRoundNumber = 1;
         this.enemiesSpawned = 0;
@@ -122,7 +124,7 @@ public class GamePanel extends JPanel {
         spawnTimer = new Timer(0, null);
 
         // Add mouse listener for tower clicks
-        Tower tower = new Tower(this);
+        Tower tower = new Tower(this, -1, -1);
         this.addMouseListener(tower.new BuildingClicked());
 
         this.addMouseListener(new MouseAdapter() {
@@ -307,15 +309,9 @@ public class GamePanel extends JPanel {
             enemy.draw(g, calculatedTileSize, xOffset, yOffset);
         }
 
-        for (int row = 0; row < Maze.ROWS; row++) {
-            for (int col = 0; col < Maze.COLS; col++) {
-                if (Maze.maze[row][col] >= 5) {
-                    Tower tower = getTower(row, col);
-                    if (tower != null) {
-                        tower.draw(g);
-                    }
-                }
-            }
+        // Draw Towers
+        for (Tower tower : towers) {
+            tower.draw(g);
         }
 
         // Draw the GameState items (Money and Lives)
@@ -362,15 +358,8 @@ public class GamePanel extends JPanel {
             }
         }
 
-        for (int row = 0; row < Maze.ROWS; row++) {
-            for (int col = 0; col < Maze.COLS; col++) {
-                if (Maze.maze[row][col] >= 5) {  // If it's a tower
-                    Tower tower = getTower(row, col);
-                    if (tower != null) {
-                        tower.update();
-                    }
-                }
-            }
+        for (Tower tower : towers) {
+            tower.update();
         }
 
         repaint();  // Trigger a repaint to reflect changes
@@ -406,6 +395,14 @@ public class GamePanel extends JPanel {
             spawnTimer.stop();
             checkRoundCompletion();
         }
+    }
+
+    public void addTower(Tower tower) {
+        towers.add(tower);
+    }
+
+    public List<Tower> getTowers() {
+        return towers;
     }
 
     private boolean isRoundActive() {
