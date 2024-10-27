@@ -42,10 +42,10 @@ public class GamePanel extends JPanel {
 
         gameState = new GameState();
 
-        // Update the game state and clock
-        Timer gameTimer = new Timer(DELAY, _ -> {
-            updateGameState();  // Update the game state and clock
+        Timer gameTimer = new Timer(DELAY, e -> {
+            updateGameState();
         });
+        
 
         // Start the timer
         gameTimer.start();
