@@ -7,39 +7,47 @@ public class GameState {
     public static int money = 300;
     public int lives = 5;
 
-    public void draw(Graphics2D g){
-        // Set font for the money text
-        g.setFont(new Font(Font.SERIF, Font.BOLD, 18));
-        
-        // Calculate the width of the money text
-        String moneyText = "Money: " + money;
+    private static final int PADDING = 10;
+    private static final int ITEM_HEIGHT = 30;
+    private static final int ITEM_SPACING = 10;
+    private static final Font FONT = new Font(Font.SERIF, Font.BOLD, 18);
+
+    private int numberOfItems = 0;
+
+    public void draw(Graphics2D g) {
+        numberOfItems = 0;
+        g.setFont(FONT);
         FontMetrics fm = g.getFontMetrics();
-        int textWidth = fm.stringWidth(moneyText);
 
-        // Set position in the top-right corner with dynamic width based on text
-        int x = GamePanel.panelWidth - textWidth - 10; // Right alignment with padding
-        int y = 10; // Top margin
-        
-        // Draw the money display background with dynamic width based on text
+        int x = PADDING;
+        int y = PADDING;
+
+        drawInfoBox(g, "Money: " + money, Color.GREEN, x, y, fm);
+        numberOfItems++;
+        y += ITEM_HEIGHT + ITEM_SPACING;
+
+        drawInfoBox(g, "Lives: " + lives, Color.RED, x, y, fm);
+        numberOfItems++;
+        y += ITEM_HEIGHT + ITEM_SPACING;
+    }
+
+    private void drawInfoBox(Graphics2D g, String text, Color textColor, int x, int y, FontMetrics fm) {
+        int textWidth = fm.stringWidth(text);
+        int textHeight = fm.getHeight();
+
+        g.setColor(Color.DARK_GRAY);
+        g.fillRoundRect(x, y, textWidth + 20, ITEM_HEIGHT, 15, 15); // Rounded corners for aesthetics
+
         g.setColor(Color.BLACK);
-        g.fillRect(x, y, textWidth + 10, 40);  // Add padding to the text width
-        
-        // Draw the money text
-        g.setColor(Color.GREEN);
-        g.drawString(moneyText, x + 5, y + 30);
+        g.drawRoundRect(x, y, textWidth + 20, ITEM_HEIGHT, 15, 15);
 
-        // Draw Lives
-        String livesText = "Lives: " + lives;
-        textWidth = fm.stringWidth(livesText);
-        x = GamePanel.panelWidth - textWidth - 10; // Right alignment with padding
-        y = 50; // Position below the money display
+        g.setColor(textColor);
+        int textX = x + 10;
+        int textY = y + ((ITEM_HEIGHT - fm.getHeight()) / 2) + fm.getAscent();
+        g.drawString(text, textX, textY);
+    }
 
-        // Draw the lives display background
-        g.setColor(Color.BLACK);
-        g.fillRect(x, y, textWidth + 10, 40);  // Add padding
-
-        // Draw the lives text
-        g.setColor(Color.RED);
-        g.drawString(livesText, x + 5, y + 30);
+    public int getNumberOfItems() {
+        return numberOfItems;
     }
 }
