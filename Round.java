@@ -33,20 +33,22 @@ public class Round {
         while (remainingPoints > 0) {
             List<EnemyTypes> possibleTypes = new ArrayList<>();
 
-            if (remainingPoints >= 10) {
-                possibleTypes.add(new EnemyTypes(2.0, 100, 10));
+            if (remainingPoints >= EnemyTypes.TANK.points()) {
+                possibleTypes.add(EnemyTypes.TANK);
+            }
+            if (remainingPoints >= EnemyTypes.FAST.points()) {
+                possibleTypes.add(EnemyTypes.FAST);
+            }
+            if (remainingPoints >= EnemyTypes.BASIC.points()) {
+                possibleTypes.add(EnemyTypes.BASIC);
             }
 
-            if (remainingPoints >= 20) {
-                possibleTypes.add(new EnemyTypes(1.5, 150, 20));
-            }
-
-            if (remainingPoints >= 30) {
-                possibleTypes.add(new EnemyTypes(1.0, 200, 30));
+            if (remainingPoints >= EnemyTypes.FLYER.points()) {
+                possibleTypes.add(EnemyTypes.FLYER);
             }
 
             if (possibleTypes.isEmpty()) {
-                break;
+                break; // No more enemy types can be spawned with remaining points
             }
 
             EnemyTypes selectedType = possibleTypes.get(rand.nextInt(possibleTypes.size()));

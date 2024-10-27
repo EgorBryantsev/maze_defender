@@ -2,18 +2,22 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class Enemy {
-    private int currentPathIndex; //location
+    private int currentPathIndex; // Location
     private double progress;
-    private int hp; //health
+    private int hp; // Current health
+    private final int maxHp; // Maximum health
     private final double speed;
     private final int points;
-    private final int[][] path; // path
+    private final int[][] path; // Path
+    private final EnemyTypes type; // Enemy type
 
-    public Enemy(int[][] path, double speed, int hp, int points) {
+    public Enemy(int[][] path, EnemyTypes type) {
         this.path = path;
-        this.speed = speed;
-        this.hp = hp;
-        this.points = points;
+        this.type = type;
+        this.speed = type.speed();
+        this.hp = type.hp();
+        this.maxHp = type.hp();
+        this.points = type.points();
         this.currentPathIndex = 0; // Start moving towards the first step
         this.progress = 0.0;
     }
@@ -60,9 +64,9 @@ public class Enemy {
         // Convert grid position to pixel coordinates
         int pixelX = xOffset + (int)((interpCol + 0.5) * tileSize);
         int pixelY = yOffset + (int)((interpRow + 0.5) * tileSize);
-        // Draw the enemy as a red circle
-        g.setColor(Color.RED);
-        int enemySize = tileSize / 2;
+
+        g.setColor(type.color());
+        int enemySize = type.size();
         g.fillOval(pixelX - enemySize / 2, pixelY - enemySize / 2, enemySize, enemySize);
 
         // Draw health bar
@@ -71,7 +75,7 @@ public class Enemy {
         int barHeight = 5;
         int barX = pixelX - enemySize;
         int barY = pixelY - enemySize / 2 - 10;
-        g.fillRect(barX, barY, (int)((hp / 100.0) * barWidth), barHeight);
+        g.fillRect(barX, barY, (int)((hp / (double)maxHp) * barWidth), barHeight);
         g.setColor(Color.BLACK);
         g.drawRect(barX, barY, barWidth, barHeight);
     }

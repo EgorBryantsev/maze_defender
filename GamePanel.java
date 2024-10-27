@@ -103,8 +103,8 @@ public class GamePanel extends JPanel {
     }
 
     // Method to spawn an enemy
-    public static void spawnEnemy(int[][] path, double speed, int hp, int points) {
-        Enemy enemy = new Enemy(path, speed, hp, points);
+    public static void spawnEnemy(int[][] path, EnemyTypes type) {
+        Enemy enemy = new Enemy(path, type);
         enemies.add(enemy);
     }
 
@@ -257,14 +257,11 @@ public class GamePanel extends JPanel {
 
     private void spawnNextEnemy() {
         if (enemiesSpawned < currentRound.getEnemiesToSpawn().size()) {
-            EnemyTypes enemyTypes = currentRound.getEnemiesToSpawn().get(enemiesSpawned);
-            double speed = enemyTypes.speed();
-            int hp = enemyTypes.hp();
-            int points = enemyTypes.points();
+            EnemyTypes enemyType = currentRound.getEnemiesToSpawn().get(enemiesSpawned);
             int[][] path = pathfinder.findPath(); // Correctly call the instance method
 
             if (path != null) {
-                spawnEnemy(path, speed, hp, points);
+                spawnEnemy(path, enemyType);
                 enemiesSpawned++;
             } else {
                 System.out.println("No path found for enemy.");
