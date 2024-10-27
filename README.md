@@ -1,4 +1,4 @@
-**# Maze Defender
+# Maze Defender
 
 This project is a tower defense game developed in Java using Swing, where you defend a maze from enemies that try to navigate through it.
 
