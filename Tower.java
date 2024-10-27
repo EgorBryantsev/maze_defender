@@ -177,21 +177,44 @@ public class Tower {
                 );
 
                 if (confirm == JOptionPane.YES_OPTION) {
-                    // Determine the top-left tile of the tower
-                    int towerRow = isBuilding(row, col) ? row : (isBuilding(row - 1, col) ? row - 1 :
-                            (isBuilding(row, col - 1) ? row : row - 1));
-                    int towerCol = isBuilding(row, col) ? col : (isBuilding(row - 1, col) ? col :
-                            (isBuilding(row, col - 1) ? col - 1 : col - 1));
 
+                    if (isBuilding(row, col)) {
+                        Tower existingTower = findTowerAt(row, col);
+                        if (existingTower != null) {
+                            existingTower.buildingNewLevel(row, col);
+                        } else {
 
-                    Tower existingTower = findTowerAt(towerRow, towerCol);
-                    if (existingTower != null) {
-                        existingTower.buildingNewLevel(towerRow, towerCol);
-                    } else {
+                            addNewTower(row, col);
+                        }
+                        gamePanel.repaint();
+                    } else if (isBuilding(row - 1, col)) {
+                        Tower existingTower = findTowerAt(row - 1, col);
+                        if (existingTower != null) {
+                            existingTower.buildingNewLevel(row - 1, col);
+                        } else {
 
-                        addNewTower(towerRow, towerCol);
+                            addNewTower(row - 1, col);
+                        }
+                        gamePanel.repaint();
+                    } else if (isBuilding(row, col - 1)) {
+                        Tower existingTower = findTowerAt(row, col - 1);
+                        if (existingTower != null) {
+                            existingTower.buildingNewLevel(row, col - 1);
+                        } else {
+
+                            addNewTower(row, col - 1);
+                        }
+                        gamePanel.repaint();
+                    } else if (isBuilding(row - 1, col - 1)) {
+                        Tower existingTower = findTowerAt(row - 1, col - 1);
+                        if (existingTower != null) {
+                            existingTower.buildingNewLevel(row - 1, col - 1);
+                        } else {
+
+                            addNewTower(row - 1, col - 1);
+                        }
+                        gamePanel.repaint();
                     }
-                    gamePanel.repaint();
                 }
             }
         }
