@@ -100,4 +100,10 @@ public class Clock {
     public int[] getBounds() {
         return new int[] { currentX, currentY, currentWidth, currentHeight };
     }
+
+    public void setPrompt(String promptMessage) {
+        this.message = promptMessage;
+        this.timeOver = true;
+        this.status = false; // Stop the clock from updating further
+    }
 }

@@ -30,6 +30,7 @@ public class GamePanel extends JPanel {
     private Timer spawnTimer;
     private int enemiesSpawned;
     private List<Tower> towers = new ArrayList<>();
+    private boolean roundComplete = false; // Add this flag at the class level
 
     private BufferedImage stoneWallTexture;
     private BufferedImage floorTileTexture;
@@ -147,9 +148,19 @@ public class GamePanel extends JPanel {
         this.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_SPACE && gameClock.timeOver) {
-                    gameClock.reset();
-                    gameClock.start();
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    if (roundComplete) {
+                        // Start the next round
+                        roundComplete = false;
+                        currentRoundNumber++;
+                        startNewRound(currentRoundNumber);
+                        gameClock.reset();
+                        gameClock.start();
+                    } else if (gameClock.timeOver) {
+                        // Existing functionality if needed
+                        gameClock.reset();
+                        gameClock.start();
+                    }
                 }
             }
         });
@@ -411,15 +422,13 @@ public class GamePanel extends JPanel {
 
     private void checkRoundCompletion() {
         // Check if all enemies are defeated
-        if (!isRoundActive() && enemies.isEmpty()) {
+        if (!isRoundActive() && enemies.isEmpty()&& !roundComplete) {
             // Start the next round after a short delay (e.g., 3 seconds)
-            Timer delayTimer = new Timer(3000, e -> {
-                currentRoundNumber++;
-                startNewRound(currentRoundNumber);
-                ((Timer) e.getSource()).stop();
-            });
-            delayTimer.setRepeats(false);
-            delayTimer.start();
+            roundComplete = true;
+            System.out.println("Round " + currentRoundNumber + " completed. Press SPACE to start the next round.");
+
+            gameClock.setPrompt("New Wave: Press Space");
+            // Optionally, you can display a message on the UI
         }
     }
 
