@@ -23,3 +23,4 @@ A* pathfinding - https://www.youtube.com/watch?v=-L-WgKMFuhE
 Beginner's Guide to Git - https://github.blog/developer-skills/programming-languages-and-frameworks/what-is-git-our-beginners-guide-to-version-control/
 Git Tutorial - https://www.w3schools.com/git/default.asp
 
+Textures are taken from https://opengameart.org/art-search-advanced?keys=&field_art_type_tid%5B%5D=14&sort_by=count&sort_order=DESC
