@@ -4,7 +4,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 
 public class GameState {
-    private static final int INITIAL_LIVES = 3;  // or whatever your starting value is
+    private static final int INITIAL_LIVES = 10;  // or whatever your starting value is
     private static final int INITIAL_MONEY = 500; // or whatever your starting value is
 
     private static final int PADDING = 10;

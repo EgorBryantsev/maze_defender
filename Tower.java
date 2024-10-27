@@ -18,6 +18,7 @@ public class Tower {
     private int col;  // Column position in the maze
     public int ovalX;
     public int ovalY;
+    public String costMessage;
 
     private int shootTimer = 0;
     private ArrayList<Projectile> projectiles;
@@ -25,8 +26,7 @@ public class Tower {
     
     public Tower(GamePanel gamePanel, int row, int col) {
         this.gamePanel = gamePanel;
-        this.projectiles = new ArrayList<>();
-        this.towerLevel = baseTowerLevel;  // Initialize instance tower level
+        this.projectiles = new ArrayList<>();  // Initialize instance tower level
         this.row = row;
         this.col = col;
         upgradeTower();  // Set initial stats
@@ -109,43 +109,6 @@ public class Tower {
         }
     }
     
-    
-    
-    private Enemy findClosestEnemy(ArrayList<Enemy> enemies) {
-        Enemy closest = null;
-        int closestDistance = range * gamePanel.calculatedTileSize;  // Maximum range
-        
-        for (Enemy enemy : enemies) {
-            int distance = getDistanceToEnemy(enemy);
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closest = enemy;
-            }
-        }
-        
-        return closest;
-    }
-    
-    private void shootAt(Enemy enemy) {
-        double[] pos = enemy.getPosition(gamePanel.calculatedTileSize, gamePanel.getXOffset(), gamePanel.getYOffset());
-        Projectile p = new Projectile(
-            getTowerX(),
-            getTowerY(),
-            (int)pos[0],
-            (int)pos[1],
-            10,  // Speed
-            damage
-        );
-        projectiles.add(p);
-    }
-    
-    private int getDistanceToEnemy(Enemy enemy) {
-        double[] pos = enemy.getPosition(gamePanel.calculatedTileSize, gamePanel.getXOffset(), gamePanel.getYOffset());
-        int dx = getTowerX() - (int)pos[0];
-        int dy = getTowerY() - (int)pos[1];
-        return (int)Math.sqrt(dx * dx + dy * dy);
-    }
-    
     private boolean isHitting(Projectile p, Enemy e) {
         double[] pos = e.getPosition(gamePanel.calculatedTileSize, gamePanel.getXOffset(), gamePanel.getYOffset());
         int dx = p.x - (int)pos[0];
@@ -191,6 +154,9 @@ public class Tower {
         speed = towerLevel * 2;  // Shots per second
         range = towerLevel * 2;  // Range in tiles
         damage = towerLevel * 10;  // Damage per shot
+        cost = 100 + 100 * costMultiplier * towerLevel;
+        costMessage = "Upgrade cost: " + cost + "\nProceed with upgrade?";
+        System.out.println(costMessage);
     }
 
     public class BuildingClicked extends MouseAdapter {
@@ -201,12 +167,11 @@ public class Tower {
             int row = (e.getY() - (gamePanel.getHeight() - gamePanel.panelHeight) / 2) / gamePanel.calculatedTileSize;
 
             if (isBuilding(row, col) || isBuilding(row - 1, col) || isBuilding(row, col - 1) || isBuilding(row - 1, col - 1)) {
-                cost = 100 + 100 * costMultiplier * towerLevel;
 
                 // Show a confirmation dialog with the upgrade cost
                 int confirm = JOptionPane.showConfirmDialog(
                     gamePanel,
-                    "Upgrade cost: " + cost + "\nProceed with upgrade?",
+                    costMessage,
                     "Upgrade Confirmation",
                     JOptionPane.YES_NO_OPTION
                 );
@@ -268,7 +233,6 @@ public class Tower {
 
     private void buildingNewLevel(int row, int col) {
         int newState = Maze.maze[row][col] + 1;
-        cost = 100 + 100 * costMultiplier * towerLevel;
         if (GameState.money >= cost) {
             GameState.money -= cost;
             towerLevel++;
