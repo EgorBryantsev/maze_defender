@@ -85,8 +85,11 @@ public class Enemy {
         int pixelX = xOffset + (int)((interpCol + 0.5) * tileSize);
         int pixelY = yOffset + (int)((interpRow + 0.5) * tileSize);
 
+        double sizeRatio = type.sizeRatio();
+        int enemySize = (int) (sizeRatio * tileSize);
+        enemySize = Math.max(enemySize, 5);
+
         g.setColor(type.color());
-        int enemySize = type.size();
         g.fillOval(pixelX - enemySize / 2, pixelY - enemySize / 2, enemySize, enemySize);
 
         // Draw health bar

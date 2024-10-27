@@ -5,9 +5,13 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class GamePanel extends JPanel {
@@ -25,6 +29,9 @@ public class GamePanel extends JPanel {
     private int currentRoundNumber;
     private Timer spawnTimer;
     private int enemiesSpawned;
+
+    private BufferedImage stoneWallTexture;
+    private BufferedImage floorTileTexture;
 
     // Add Clock instance
     private Clock gameClock;
@@ -47,10 +54,26 @@ public class GamePanel extends JPanel {
         int alarmTime = 60;
         gameClock = new Clock(alarmTime);
         gameClock.start(); // 60 seconds alarm time
-        
+
+        loadTextures();
+
         // Now call reset for other initializations
         resetGame();
         setupEventListeners();
+    }
+
+    private void loadTextures() {
+        try {
+            // Use relative paths since images are in the same package
+            stoneWallTexture = ImageIO.read(Objects.requireNonNull(getClass().getResource("stonewall.png")));
+            floorTileTexture = ImageIO.read(Objects.requireNonNull(getClass().getResource("grass_01.png")));
+            System.out.println("Textures loaded successfully.");
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
+            // Fallback to solid colors if textures fail to load
+            stoneWallTexture = null;
+            floorTileTexture = null;
+        }
     }
 
     // Reset method to initialize/reset all variables
@@ -183,6 +206,7 @@ public class GamePanel extends JPanel {
         for (int row = 0; row < Maze.ROWS; row++) {
             for (int col = 0; col < Maze.COLS; col++) {
                 int cell = maze.getCell(row, col);
+                BufferedImage texture = null;
                 if (Maze.maze[row][col] >= 5) {
                     Tower tower = getTower(row, col);
                     if (tower != null) {
@@ -191,10 +215,14 @@ public class GamePanel extends JPanel {
                 }
                 switch (cell) {
                     case Maze.WALL:
-                        g.setColor(Color.BLACK);
+                        if (stoneWallTexture != null) {
+                            texture = stoneWallTexture;
+                        }
                         break;
                     case Maze.PATH:
-                        g.setColor(Color.WHITE);
+                        if (floorTileTexture != null) {
+                            texture = floorTileTexture;
+                        }
                         break;
                     case Maze.START:
                         g.setColor(Color.GREEN);
@@ -228,9 +256,42 @@ public class GamePanel extends JPanel {
                         }
                         break;
                 }
-                g.fillRect(xOffset + col * calculatedTileSize, yOffset + row * calculatedTileSize, calculatedTileSize, calculatedTileSize);
-                g.setColor(Color.LIGHT_GRAY);  // Grid lines
-                g.drawRect(xOffset + col * calculatedTileSize, yOffset + row * calculatedTileSize, calculatedTileSize, calculatedTileSize);
+
+                if (texture != null) {
+                    // Draw the texture scaled to the tile size
+                    g2d.drawImage(texture,
+                            xOffset + col * calculatedTileSize,
+                            yOffset + row * calculatedTileSize,
+                            calculatedTileSize,
+                            calculatedTileSize,
+                            this);
+                }else {
+                    // Fill the rectangle with color if no texture
+                    switch (cell) {
+                        case Maze.WALL:
+                            g.setColor(Color.BLACK);
+                            break;
+                        case Maze.PATH:
+                            g.setColor(Color.WHITE);
+                            break;
+                        case Maze.START:
+                            g.setColor(Color.GREEN);
+                            break;
+                        case Maze.END:
+                            g.setColor(Color.YELLOW);
+                            break;
+                        case Maze.BUILDING:
+                            g.setColor(Color.GRAY);
+                            break;
+                        default:
+                            // Set color based on other cell types if necessary
+                            break;
+                    }
+                    g.fillRect(xOffset + col * calculatedTileSize,
+                            yOffset + row * calculatedTileSize,
+                            calculatedTileSize,
+                            calculatedTileSize);
+                }
             }
         }
 
