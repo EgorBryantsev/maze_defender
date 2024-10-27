@@ -201,7 +201,7 @@ public class Tower {
             int row = (e.getY() - (gamePanel.getHeight() - gamePanel.panelHeight) / 2) / gamePanel.calculatedTileSize;
 
             if (isBuilding(row, col) || isBuilding(row - 1, col) || isBuilding(row, col - 1) || isBuilding(row - 1, col - 1)) {
-                cost = 100 + 100 * costMultiplier; // Use the tower's individual level for cost
+                cost = 100 + 100 * costMultiplier * towerLevel;
 
                 // Show a confirmation dialog with the upgrade cost
                 int confirm = JOptionPane.showConfirmDialog(

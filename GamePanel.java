@@ -344,7 +344,7 @@ public class GamePanel extends JPanel {
 
             if (!enemy.isAlive()) {
                 // Enemy is dead, award points
-                GameState.money += enemy.getPoints();
+                GameState.money = enemy.getPoints() * 10;
                 iterator.remove();
             } else if (enemy.hasReachedEnd()) {
                 System.out.println("Enemy reached the end!");
