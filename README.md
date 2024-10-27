@@ -24,4 +24,3 @@ Beginner's Guide to Git - https://github.blog/developer-skills/programming-langu
 Git Tutorial - https://www.w3schools.com/git/default.asp
 
 Textures are taken from https://opengameart.org/art-search-advanced?keys=&field_art_type_tid%5B%5D=14&sort_by=count&sort_order=DESC
-
