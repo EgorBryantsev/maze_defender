@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 
 public class GameState {
     private static final int INITIAL_LIVES = 3;  // or whatever your starting value is
-    private static final int INITIAL_MONEY = 30000; // or whatever your starting value is
+    private static final int INITIAL_MONEY = 500; // or whatever your starting value is
 
     private static final int PADDING = 10;
     private static final int ITEM_HEIGHT = 30;

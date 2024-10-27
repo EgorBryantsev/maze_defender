@@ -12,7 +12,7 @@ public class Tower {
     public int towerLevel;  // Instance-specific tower level
     private boolean confirmationPending = false;
     private int upgradeCost = 0;
-    private double costMultiplier = 0;
+    private double costMultiplier = 3;
     private double cost = 0;
     private int row;  // Row position in the maze
     private int col;  // Column position in the maze
@@ -268,7 +268,7 @@ public class Tower {
 
     private void buildingNewLevel(int row, int col) {
         int newState = Maze.maze[row][col] + 1;
-        cost = 100 + 100 * costMultiplier;
+        cost = 100 + 100 * costMultiplier * towerLevel;
         if (GameState.money >= cost) {
             GameState.money -= cost;
             towerLevel++;
