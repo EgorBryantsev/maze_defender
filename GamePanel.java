@@ -32,6 +32,7 @@ public class GamePanel extends JPanel {
     private List<Tower> towers = new ArrayList<>();
     private boolean roundComplete = false;
     public static int nextRound;
+    public static int speedBoost = 1;
 
     private BufferedImage stoneWallTexture;
     private BufferedImage floorTileTexture;

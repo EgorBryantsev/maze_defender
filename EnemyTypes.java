@@ -12,6 +12,6 @@ public record EnemyTypes(double speed, int hp, int points, double money, int fro
     public static final EnemyTypes WEAK = new EnemyTypes(2.75, 15, 5, 1, 0, Color.BLUE, 0.5);
     public static final EnemyTypes ROCKET = new EnemyTypes(10, 100, 30, 10, 8, Color.LIGHT_GRAY, 0.2);
     public static final EnemyTypes MONSTER = new EnemyTypes(8, 500, 30, 15, 9, Color.DARK_GRAY, 0.4);
-
+    public static final EnemyTypes BULLET = new EnemyTypes(20,1000, 50, 20, 13, Color.CYAN, 0.3);
 }
  
