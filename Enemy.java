@@ -8,6 +8,7 @@ public class Enemy {
     private final int maxHp;
     private final double speed;
     private final int points;
+    private final int money;
     private final int[][] path;
     private final EnemyTypes type;
 
@@ -40,6 +41,7 @@ public class Enemy {
         this.hp = type.hp();
         this.maxHp = type.hp();
         this.points = type.points();
+        this.money = type.money();
         this.currentPathIndex = 0;
         this.progress = 0.0;
     }
@@ -107,4 +109,5 @@ public class Enemy {
     }
     
     public int getPoints() { return points; }
+    public int getMoney() { return money; }
 }

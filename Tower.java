@@ -11,8 +11,7 @@ public class Tower {
     private static int baseTowerLevel = 0;  // Changed to start at level 1
     public int towerLevel;  // Instance-specific tower level
     private boolean confirmationPending = false;
-    private int upgradeCost = 0;
-    private double costMultiplier = 3;
+    private double costMultiplier = 0;
     private double cost = 0;
     private int row;  // Row position in the maze
     private int col;  // Column position in the maze
@@ -65,6 +64,11 @@ public class Tower {
         for (int i = projectiles.size() - 1; i >= 0; i--) {
             Projectile p = projectiles.get(i);
             p.move();
+
+            if (p.isExpired()) {
+                projectiles.remove(i);
+                continue;
+            }
 
             // Check if projectile hit any enemy
             for (Enemy enemy : GamePanel.getEnemies()) {
@@ -159,15 +163,30 @@ public class Tower {
         speed = towerLevel * 2;  // Shots per second
         range = towerLevel * 2;  // Range in tiles
         damage = towerLevel * 10;  // Damage per shot
-        cost = 100 + 100 * costMultiplier * towerLevel;
-        costMessage = "Upgrade cost: " + cost + "\nProceed with upgrade?";
-        System.out.println(costMessage);
+        cost = 100 + 100 * costMultiplier;
+    }
+
+    private void buildingNewLevel(int row, int col) {
+        int newState = Maze.maze[row][col] + 1;
+        if (GameState.money >= cost) {
+            GameState.money -= cost;
+            towerLevel++;
+            costMultiplier += 3;
+            upgradeTower();  // Update tower attributes based on new level
+            if (newState > 7) newState = 8;
+            Maze.maze[row][col] = newState;
+            Maze.maze[row + 1][col] = newState;
+            Maze.maze[row][col + 1] = newState;
+            Maze.maze[row + 1][col + 1] = newState;
+        } else {
+            // Optionally, notify the player about insufficient funds
+            JOptionPane.showMessageDialog(gamePanel, "Not enough money to upgrade!", "Upgrade Failed", JOptionPane.WARNING_MESSAGE);
+        }
     }
 
     public class BuildingClicked extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
-            costMultiplier = 2.5 * towerLevel;
             int col = (e.getX() - (gamePanel.getWidth() - gamePanel.panelWidth) / 2) / gamePanel.calculatedTileSize;
             int row = (e.getY() - (gamePanel.getHeight() - gamePanel.panelHeight) / 2) / gamePanel.calculatedTileSize;
 
@@ -176,14 +195,14 @@ public class Tower {
                 // Show a confirmation dialog with the upgrade cost
                 int confirm = JOptionPane.showConfirmDialog(
                     gamePanel,
-                    costMessage,
+                    "Upgrade cost: " + (100 + 100 * costMultiplier) + "\nProceed with upgrade?",
                     "Upgrade Confirmation",
                     JOptionPane.YES_NO_OPTION
                 );
 
                 if (confirm == JOptionPane.YES_OPTION) {
 
-                    if (isBuilding(row, col)) {
+                    if (gamePanel.isBuilding(row, col)) {
                         Tower existingTower = findTowerAt(row, col);
                         if (existingTower != null) {
                             existingTower.buildingNewLevel(row, col);
@@ -192,7 +211,7 @@ public class Tower {
                             addNewTower(row, col);
                         }
                         gamePanel.repaint();
-                    } else if (isBuilding(row - 1, col)) {
+                    } else if (gamePanel.isBuilding(row - 1, col)) {
                         Tower existingTower = findTowerAt(row - 1, col);
                         if (existingTower != null) {
                             existingTower.buildingNewLevel(row - 1, col);
@@ -201,7 +220,7 @@ public class Tower {
                             addNewTower(row - 1, col);
                         }
                         gamePanel.repaint();
-                    } else if (isBuilding(row, col - 1)) {
+                    } else if (gamePanel.isBuilding(row, col - 1)) {
                         Tower existingTower = findTowerAt(row, col - 1);
                         if (existingTower != null) {
                             existingTower.buildingNewLevel(row, col - 1);
@@ -210,7 +229,7 @@ public class Tower {
                             addNewTower(row, col - 1);
                         }
                         gamePanel.repaint();
-                    } else if (isBuilding(row - 1, col - 1)) {
+                    } else if (gamePanel.isBuilding(row - 1, col - 1)) {
                         Tower existingTower = findTowerAt(row - 1, col - 1);
                         if (existingTower != null) {
                             existingTower.buildingNewLevel(row - 1, col - 1);
@@ -250,20 +269,4 @@ public class Tower {
         }
     }
 
-    private void buildingNewLevel(int row, int col) {
-        int newState = Maze.maze[row][col] + 1;
-        if (GameState.money >= cost) {
-            GameState.money -= cost;
-            towerLevel++;
-            upgradeTower();  // Update tower attributes based on new level
-            if (newState > 7) newState = 8;
-            Maze.maze[row][col] = newState;
-            Maze.maze[row + 1][col] = newState;
-            Maze.maze[row][col + 1] = newState;
-            Maze.maze[row + 1][col + 1] = newState;
-        } else {
-            // Optionally, notify the player about insufficient funds
-            JOptionPane.showMessageDialog(gamePanel, "Not enough money to upgrade!", "Upgrade Failed", JOptionPane.WARNING_MESSAGE);
-        }
-    }
 }

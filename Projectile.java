@@ -6,7 +6,9 @@ public class Projectile {
     private int targetX, targetY;
     private int speed;
     private int damage;
-    
+    private long startTime;  // Stores the creation time of the projectile in nanoseconds
+    private static final long LIFETIME = 3_000_000_000L;  // 3 seconds in nanoseconds
+
     public Projectile(int startX, int startY, int targetX, int targetY, int speed, int damage) {
         this.x = startX;
         this.y = startY;
@@ -14,6 +16,7 @@ public class Projectile {
         this.targetY = targetY;
         this.speed = speed;
         this.damage = damage;
+        this.startTime = System.nanoTime();  // Initialize the start time when the projectile is created
     }
     
     public void move() {
@@ -29,6 +32,11 @@ public class Projectile {
             x += (dx / distance) * speed;
             y += (dy / distance) * speed;
         }
+    }
+
+    // Check if projectile has expired
+    public boolean isExpired() {
+        return System.nanoTime() - startTime >= LIFETIME;
     }
     
     public void draw(Graphics g) {

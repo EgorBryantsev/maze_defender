@@ -33,18 +33,26 @@ public class Round {
         while (remainingPoints > 0) {
             List<EnemyTypes> possibleTypes = new ArrayList<>();
 
-            if (remainingPoints >= EnemyTypes.TANK.points()) {
+            if (remainingPoints >= EnemyTypes.TANK.points() && GamePanel.currentRoundNumber >= EnemyTypes.TANK.fromRound()) {
                 possibleTypes.add(EnemyTypes.TANK);
             }
-            if (remainingPoints >= EnemyTypes.FAST.points()) {
+            if (remainingPoints >= EnemyTypes.FAST.points() && GamePanel.currentRoundNumber >= EnemyTypes.FAST.fromRound()) {
                 possibleTypes.add(EnemyTypes.FAST);
             }
-            if (remainingPoints >= EnemyTypes.BASIC.points()) {
+            if (remainingPoints >= EnemyTypes.BASIC.points() && GamePanel.currentRoundNumber >= EnemyTypes.BASIC.fromRound()) {
                 possibleTypes.add(EnemyTypes.BASIC);
             }
 
-            if (remainingPoints >= EnemyTypes.FLYER.points()) {
+            if (remainingPoints >= EnemyTypes.FLYER.points() && GamePanel.currentRoundNumber >= EnemyTypes.FLYER.fromRound()) {
                 possibleTypes.add(EnemyTypes.FLYER);
+            }
+
+            if (remainingPoints >= EnemyTypes.ROCKET.points() && GamePanel.currentRoundNumber >= EnemyTypes.ROCKET.fromRound()) {
+                possibleTypes.add(EnemyTypes.ROCKET);
+            }
+
+            if (remainingPoints >= EnemyTypes.BOSS.points() && GamePanel.currentRoundNumber >= EnemyTypes.BOSS.fromRound()) {
+                possibleTypes.add(EnemyTypes.BOSS);
             }
 
             if (possibleTypes.isEmpty()) {

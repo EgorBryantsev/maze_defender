@@ -43,7 +43,7 @@ public class Clock {
      */
     public void start() {
         status = true; 
-        message = "Time " + (alarmTime - timePassed);
+        message = "Time " + (/*alarmTime - */timePassed);
         previousTime = System.nanoTime();
     }
 
@@ -57,7 +57,7 @@ public class Clock {
             if (now - previousTime >= clockSpeed) {
                 timePassed++;
                 System.out.println("Elapsed Time: " + timePassed);
-                message = "Time " + (alarmTime - timePassed);
+                message = "Time " + (/*alarmTime - */timePassed);
                 previousTime = now;
             }
             if (timePassed >= alarmTime) {

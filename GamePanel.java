@@ -26,11 +26,12 @@ public class GamePanel extends JPanel {
     private int xOffset;
     private int yOffset;
     private Round currentRound;
-    private int currentRoundNumber;
+    public static int currentRoundNumber;
     private Timer spawnTimer;
     private int enemiesSpawned;
     private List<Tower> towers = new ArrayList<>();
     private boolean roundComplete = false;
+    public static int nextRound;
 
     private BufferedImage stoneWallTexture;
     private BufferedImage floorTileTexture;
@@ -83,7 +84,8 @@ public class GamePanel extends JPanel {
         GamePanel.enemies = new ArrayList<>();
         towers = new ArrayList<>();
 
-        this.currentRoundNumber = 1;
+        GamePanel.currentRoundNumber = 1;
+        nextRound = currentRoundNumber;
         this.enemiesSpawned = 0;
         if (this.spawnTimer != null && this.spawnTimer.isRunning()) {
             this.spawnTimer.stop();
@@ -136,6 +138,7 @@ public class GamePanel extends JPanel {
         updateSize();
 
         currentRoundNumber = 1;
+        nextRound = currentRoundNumber;
         startNewRound(currentRoundNumber);
         spawnTimer = new Timer(0, null);
 
@@ -368,7 +371,7 @@ public class GamePanel extends JPanel {
 
             if (!enemy.isAlive()) {
                 // Enemy is dead, award points
-                GameState.money += enemy.getPoints() * 10;
+                GameState.money += enemy.getMoney() * 10;
                 iterator.remove();
             } else if (enemy.hasReachedEnd()) {
                 System.out.println("Enemy reached the end!");
