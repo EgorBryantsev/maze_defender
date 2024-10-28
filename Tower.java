@@ -150,7 +150,7 @@ public class Tower {
         g.fillRect(x, y, size, size);
 
         if (towerLevel >= 1) {
-            g.setColor(new Color(46, 43, 43));
+            g.setColor(new Color(62, 55, 55, 50));
             int circleSize = range * 2 * gamePanel.calculatedTileSize;
             int centerX = x + size / 2;
             int centerY = y + size / 2;
