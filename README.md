@@ -17,6 +17,9 @@ We learned how to use this from the GitHub "beginners guide to Git", and the Git
 
 Because of this, we were able to work on the project more efficiently and quickly.
 
+## How to play
+When you start the game a maze will be generated and enemies will begin to spawn. There are a number of 2x2 squares in the maze which can be clicked on to upgrade them, which will create towers which will shoot at the enemies. Eliminating enemies grants money, which can be used to upgrade towers. You goal is to survive as long as possible.
+
 ## Sources
 The A* Search Algorithm - https://www.geeksforgeeks.org/a-search-algorithm/
 A* pathfinding - https://www.youtube.com/watch?v=-L-WgKMFuhE
