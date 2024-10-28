@@ -47,5 +47,10 @@ public class Projectile {
         // Draw projectile as a small yellow circle
         g.setColor(Color.YELLOW);
         g.fillOval(x - 3, y - 3, 6, 6);
+        if (Tower.towerLevel2 >= 10) {
+            g.setColor(Color.RED);
+        } else {
+            g.setColor(Color.YELLOW);
+        }
     }
 }
