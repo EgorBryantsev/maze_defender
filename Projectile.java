@@ -18,7 +18,11 @@ public class Projectile {
         this.damage = damage;
         this.startTime = System.nanoTime();  // Initialize the start time when the projectile is created
     }
-    
+
+    public int damage() {
+        return damage;
+    }
+
     public void move() {
         // Get direction to target
         int dx = targetX - x;
@@ -41,11 +45,7 @@ public class Projectile {
     
     public void draw(Graphics g) {
         // Draw projectile as a small yellow circle
-        if (Tower.towerLevel2 >= 10) {
-            g.setColor(Color.RED);
-        } else {
-            g.setColor(Color.YELLOW);
-        }
+        g.setColor(Color.YELLOW);
         g.fillOval(x - 3, y - 3, 6, 6);
     }
 }

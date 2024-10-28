@@ -46,6 +46,8 @@ public class GamePanel extends JPanel {
     private static final int ITEM_HEIGHT = 30;
     private static final int ITEM_SPACING = 10;
 
+    private List<Projectile> allProjectiles = new ArrayList<>();
+
     // Constructor
     public GamePanel() {
         this.setBackground(Color.DARK_GRAY);
@@ -224,6 +226,10 @@ public class GamePanel extends JPanel {
         return yOffset;
     }
 
+    public void addProjectile(Projectile p) {
+        allProjectiles.add(p);
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -336,6 +342,11 @@ public class GamePanel extends JPanel {
             enemy.draw(g, calculatedTileSize, xOffset, yOffset);
         }
 
+        //draw projectiles
+        for (Projectile p : allProjectiles) {
+            p.draw(g);
+        }
+
         // Draw Towers
         for (Tower tower : towers) {
             tower.draw(g);
@@ -389,7 +400,35 @@ public class GamePanel extends JPanel {
             tower.update();
         }
 
+        // Update Projectiles
+        Iterator<Projectile> projectileIterator = allProjectiles.iterator();
+        while (projectileIterator.hasNext()) {
+            Projectile p = projectileIterator.next();
+            p.move();
+
+            if (p.isExpired()) {
+                projectileIterator.remove();
+                continue;
+            }
+
+            // Check collision with enemies
+            for (Enemy enemy : enemies) {
+                if (isHitting(p, enemy)) {
+                    enemy.takeDamage(p.damage());
+                    projectileIterator.remove();
+                    break;
+                }
+            }
+        }
+
         repaint();  // Trigger a repaint to reflect changes
+    }
+
+    private boolean isHitting(Projectile p, Enemy e) {
+        double[] pos = e.getPosition(calculatedTileSize, xOffset, yOffset);
+        double dx = p.x - pos[0];
+        double dy = p.y - pos[1];
+        return (dx * dx + dy * dy) < (20 * 20);
     }
 
     private void startNewRound(int roundNumber) {
