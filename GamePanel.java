@@ -371,7 +371,7 @@ public class GamePanel extends JPanel {
 
             if (!enemy.isAlive()) {
                 // Enemy is dead, award points
-                GameState.money += enemy.getMoney() * 10;
+                GameState.money += enemy.getMoney() * 5;
                 iterator.remove();
             } else if (enemy.hasReachedEnd()) {
                 System.out.println("Enemy reached the end!");
@@ -442,6 +442,7 @@ public class GamePanel extends JPanel {
             // Start the next round after a short delay (e.g., 3 seconds)
             roundComplete = true;
             System.out.println("Round " + currentRoundNumber + " completed. Press SPACE to start the next round.");
+            GameState.money += currentRoundNumber * 100;
 
             gameClock.setPrompt("New Wave: Press Space");
             // Optionally, you can display a message on the UI

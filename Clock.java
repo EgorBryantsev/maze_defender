@@ -60,12 +60,12 @@ public class Clock {
                 message = "Time " + (/*alarmTime - */timePassed);
                 previousTime = now;
             }
-            if (timePassed >= alarmTime) {
+            /* if (timePassed >= alarmTime) {
                 status = false;
                 timeOver = true;
                 message = "New Wave: Press Space";
                 System.out.println("Timer stopped at: " + timePassed);
-            }
+            } */
         }
     }
 

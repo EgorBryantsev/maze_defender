@@ -8,7 +8,7 @@ public class Enemy {
     private final int maxHp;
     private final double speed;
     private final int points;
-    private final int money;
+    private final double money;
     private final int[][] path;
     private final EnemyTypes type;
 
@@ -109,5 +109,5 @@ public class Enemy {
     }
     
     public int getPoints() { return points; }
-    public int getMoney() { return money; }
+    public double getMoney() { return money; }
 }

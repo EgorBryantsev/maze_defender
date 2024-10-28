@@ -10,6 +10,7 @@ public class Tower {
     public int range;
     private static int baseTowerLevel = 0;  // Changed to start at level 1
     public int towerLevel;  // Instance-specific tower level
+    public static int towerLevel2; 
     private boolean confirmationPending = false;
     private double costMultiplier = 0;
     private double cost = 0;
@@ -29,6 +30,7 @@ public class Tower {
         this.row = row;
         this.col = col;
         this.towerLevel = baseTowerLevel;
+        this.towerLevel2 = towerLevel;
         upgradeTower();  // Set initial stats
     }
 
@@ -148,7 +150,7 @@ public class Tower {
         g.fillRect(x, y, size, size);
 
         if (towerLevel >= 1) {
-            g.setColor(new Color(255, 0, 0, 50));  // Semi-transparent red
+            g.setColor(new Color(255, towerLevel * 5, towerLevel*5, 15));  // Semi-transparent red
             int circleSize = range * 2 * gamePanel.calculatedTileSize;
             int centerX = x + size / 2;
             int centerY = y + size / 2;
@@ -160,9 +162,20 @@ public class Tower {
     
     // Update tower stats when upgraded
     public void upgradeTower() {
-        speed = towerLevel * 2;  // Shots per second
-        range = towerLevel * 2;  // Range in tiles
-        damage = towerLevel * 10;  // Damage per shot
+        if (towerLevel <= 5) {
+            speed = towerLevel * 2;  // Shots per second
+        }
+        if (towerLevel <= 4) {
+            range = towerLevel * 2;  // Range in tiles
+        } else if (towerLevel >= 8) {
+            range += 0.25; 
+        }
+        if (towerLevel <= 6) {
+            damage = towerLevel * 5;  // Damage per shot
+        }
+        if (towerLevel == 10) {
+            damage += towerLevel * 5;  // Damage per shot
+        }
         cost = 100 + 100 * costMultiplier;
     }
 
@@ -171,6 +184,7 @@ public class Tower {
         if (GameState.money >= cost) {
             GameState.money -= cost;
             towerLevel++;
+            towerLevel2 = towerLevel;
             costMultiplier += 3;
             upgradeTower();  // Update tower attributes based on new level
             if (newState > 7) newState = 8;
@@ -265,7 +279,14 @@ public class Tower {
             case 2: return Color.YELLOW;
             case 3: return Color.ORANGE;
             case 4: return Color.RED;
-            default: return Color.GRAY;
+            default: 
+            if (towerLevel >= 5 && towerLevel < 10) {
+                return Color.DARK_GRAY;
+            } else if (towerLevel >= 10) {
+                return Color.BLACK;
+            } else {
+                return Color.GRAY;
+            }
         }
     }
 

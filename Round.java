@@ -55,6 +55,18 @@ public class Round {
                 possibleTypes.add(EnemyTypes.BOSS);
             }
 
+            if (remainingPoints >= EnemyTypes.WEAK.points() && GamePanel.currentRoundNumber >= EnemyTypes.WEAK.fromRound()) {
+                possibleTypes.add(EnemyTypes.WEAK);
+            }
+
+            if (remainingPoints >= EnemyTypes.RUNNER.points() && GamePanel.currentRoundNumber >= EnemyTypes.RUNNER.fromRound()) {
+                possibleTypes.add(EnemyTypes.RUNNER);
+            }
+
+            if (remainingPoints >= EnemyTypes.MONSTER.points() && GamePanel.currentRoundNumber >= EnemyTypes.MONSTER.fromRound()) {
+                possibleTypes.add(EnemyTypes.MONSTER);
+            }
+
             if (possibleTypes.isEmpty()) {
                 break; 
             }
