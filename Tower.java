@@ -204,58 +204,72 @@ public class Tower {
             int col = (e.getX() - (gamePanel.getWidth() - gamePanel.panelWidth) / 2) / gamePanel.calculatedTileSize;
             int row = (e.getY() - (gamePanel.getHeight() - gamePanel.panelHeight) / 2) / gamePanel.calculatedTileSize;
 
-            if (gamePanel.isBuilding(row, col) || gamePanel.isBuilding(row - 1, col) || gamePanel.isBuilding(row, col - 1) || gamePanel.isBuilding(row - 1, col - 1)) {
+            if (gamePanel.isBuilding(row, col) || gamePanel.isBuilding(row - 1, col) ||
+                    gamePanel.isBuilding(row, col - 1) || gamePanel.isBuilding(row - 1, col - 1)) {
+
+                Tower targetTower = null;
+
+                // Find the existing tower that was clicked
+                if (gamePanel.isBuilding(row, col)) {
+                    targetTower = findTowerAt(row, col);
+                } else if (gamePanel.isBuilding(row - 1, col)) {
+                    targetTower = findTowerAt(row - 1, col);
+                } else if (gamePanel.isBuilding(row, col - 1)) {
+                    targetTower = findTowerAt(row, col - 1);
+                } else if (gamePanel.isBuilding(row - 1, col - 1)) {
+                    targetTower = findTowerAt(row - 1, col - 1);
+                }
+
+                double upgradeCost = 100;
+                if (targetTower != null) {
+                    upgradeCost = 100 + 100 * targetTower.costMultiplier;
+                }
 
                 // Show a confirmation dialog with the upgrade cost
                 int confirm = JOptionPane.showConfirmDialog(
-                    gamePanel,
-                    "Upgrade cost: " + (100 + 100 * costMultiplier) + "\nProceed with upgrade?",
-                    "Upgrade Confirmation",
-                    JOptionPane.YES_NO_OPTION
+                        gamePanel,
+                        "Upgrade cost: " + upgradeCost + "\nProceed with upgrade?",
+                        "Upgrade Confirmation",
+                        JOptionPane.YES_NO_OPTION
                 );
 
-                if (confirm == JOptionPane.YES_OPTION) {
 
+                if (confirm == JOptionPane.YES_OPTION) {
                     if (gamePanel.isBuilding(row, col)) {
                         Tower existingTower = findTowerAt(row, col);
                         if (existingTower != null) {
                             existingTower.buildingNewLevel(row, col);
                         } else {
-
                             addNewTower(row, col);
                         }
-                        gamePanel.repaint();
                     } else if (gamePanel.isBuilding(row - 1, col)) {
                         Tower existingTower = findTowerAt(row - 1, col);
                         if (existingTower != null) {
                             existingTower.buildingNewLevel(row - 1, col);
                         } else {
-
                             addNewTower(row - 1, col);
                         }
-                        gamePanel.repaint();
                     } else if (gamePanel.isBuilding(row, col - 1)) {
                         Tower existingTower = findTowerAt(row, col - 1);
                         if (existingTower != null) {
                             existingTower.buildingNewLevel(row, col - 1);
                         } else {
-
                             addNewTower(row, col - 1);
                         }
-                        gamePanel.repaint();
                     } else if (gamePanel.isBuilding(row - 1, col - 1)) {
                         Tower existingTower = findTowerAt(row - 1, col - 1);
                         if (existingTower != null) {
                             existingTower.buildingNewLevel(row - 1, col - 1);
                         } else {
-
                             addNewTower(row - 1, col - 1);
                         }
-                        gamePanel.repaint();
+                    }
+                    gamePanel.repaint();
+
                     }
                 }
             }
-        }
+
         
         private void addNewTower(int row, int col) {
             Tower newTower = new Tower(gamePanel, row, col);
@@ -287,7 +301,7 @@ public class Tower {
                 } else {
                     return Color.GRAY;
                 }
+
         }
     }
-
 }
