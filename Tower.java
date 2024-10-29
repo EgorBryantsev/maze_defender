@@ -58,8 +58,6 @@ public class Tower {
         // Increment the shoot timer
         shootTimer++;
 
-        // Check if it's time to shoot based on tower speed
-        // speed represents shots per second
         if (shootTimer >= 60 / speed) {  // Assuming 60 frames per second
             shootTimer = 0;  // Reset timer
 
@@ -92,7 +90,7 @@ public class Tower {
             }
 
             if (projectileRemoved) {
-                continue;  // Skip further processing for this projectile
+                continue;
             }
 
             // Remove projectiles that went too far
@@ -218,7 +216,7 @@ public class Tower {
         double originY = getTowerY();
         int projectileSpeed = 10; // Adjust as needed
 
-        // Number of projectiles (e.g., 8 for every 45 degrees)
+        // Number of projectiles
         int projectilesCount = 8;
         double angleIncrement = 360.0 / projectilesCount;
 
@@ -227,7 +225,6 @@ public class Tower {
             double targetX = originX + Math.cos(angle) * range * gamePanel.calculatedTileSize;
             double targetY = originY + Math.sin(angle) * range * gamePanel.calculatedTileSize;
 
-            // Create projectile originating from the center of the oval
             Projectile p = new Projectile(
                     originX,
                     originY,
@@ -317,7 +314,6 @@ public class Tower {
             Maze.maze[row][col + 1] = newState;
             Maze.maze[row + 1][col + 1] = newState;
         } else {
-            // Optionally, notify the player about insufficient funds
             JOptionPane.showMessageDialog(gamePanel, "Not enough money to upgrade!", "Upgrade Failed", JOptionPane.WARNING_MESSAGE);
         }
     }

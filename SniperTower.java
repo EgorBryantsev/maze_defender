@@ -9,21 +9,21 @@ public class SniperTower extends Tower {
         super(gamePanel, row, col);
         this.towerType = "Sniper";
         this.towerLevel = 1;
-        this.speed = 1;       // Slow firing rate (shots per second)
-        this.damage = 50;     // High damage per shot
-        this.range = Integer.MAX_VALUE;  // Infinite range
-        this.cost = 200;      // Initial cost for building
-        this.upgradeCost = 150; // Cost to upgrade
+        this.speed = 1;
+        this.damage = 50;
+        this.range = Integer.MAX_VALUE;
+        this.cost = 200;
+        this.upgradeCost = 150;
     }
 
     @Override
     public void update() {
         if (towerLevel == 0) return;
 
-        // Increment the shoot timer
+        // increment the shoot timer
         shootTimer++;
 
-        // Check if it's time to shoot based on tower speed
+        // check if it's time to shoot based on tower speed
         if (shootTimer >= 60 / speed) {  // Assuming 60 frames per second
             shootTimer = 0;  // Reset timer
             shootAtAnyEnemy();
@@ -75,18 +75,18 @@ public class SniperTower extends Tower {
 
     @Override
     public void draw(Graphics g) {
-        // Draw the tower base
+        // draw the tower base
         g.setColor(Color.DARK_GRAY);
         int x = gamePanel.getXOffset() + (col * gamePanel.calculatedTileSize);
         int y = gamePanel.getYOffset() + (row * gamePanel.calculatedTileSize);
         int size = gamePanel.calculatedTileSize * 2; // Towers are 2x2 tiles
         g.fillRect(x, y, size, size);
 
-        // Draw the sniper tower specifics
+        // draw the sniper tower specifics
         g.setColor(Color.BLUE);
         g.fillRect(x + size / 4, y + size / 4, size / 2, size / 2);
 
-        // Draw projectiles
+        // draw projectiles
         for (Projectile p : projectiles) {
             p.draw(g);
         }
@@ -97,9 +97,9 @@ public class SniperTower extends Tower {
         if (GameState.money >= upgradeCost) {
             GameState.money -= upgradeCost;
             towerLevel++;
-            damage += 25;   // Increase damage
-            speed += 0.5;   // Slightly increase firing rate
-            upgradeCost += 100; // Increase cost for next upgrade
+            damage += 25;   // increase damage
+            speed += 0.5;   // slightly increase firing rate
+            upgradeCost += 100; // increase cost for next upgrade
         } else {
             JOptionPane.showMessageDialog(gamePanel, "Not enough money to upgrade!", "Upgrade Failed", JOptionPane.WARNING_MESSAGE);
         }
