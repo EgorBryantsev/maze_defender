@@ -328,8 +328,7 @@ public class Tower {
             int col = (e.getX() - (gamePanel.getWidth() - gamePanel.panelWidth) / 2) / gamePanel.calculatedTileSize;
             int row = (e.getY() - (gamePanel.getHeight() - gamePanel.panelHeight) / 2) / gamePanel.calculatedTileSize;
 
-            if (gamePanel.isBuilding(row, col) || gamePanel.isBuilding(row - 1, col) ||
-                    gamePanel.isBuilding(row, col - 1) || gamePanel.isBuilding(row - 1, col - 1)) {
+            if (gamePanel.isBuilding(row, col)) {
                 String[] options = {"Basic Tower", "Sniper Tower"};
 
 
@@ -339,12 +338,6 @@ public class Tower {
                 // Find the existing tower that was clicked
                 if (gamePanel.isBuilding(row, col)) {
                     targetTower = findTowerAt(row, col);
-                } else if (gamePanel.isBuilding(row - 1, col)) {
-                    targetTower = findTowerAt(row - 1, col);
-                } else if (gamePanel.isBuilding(row, col - 1)) {
-                    targetTower = findTowerAt(row, col - 1);
-                } else if (gamePanel.isBuilding(row - 1, col - 1)) {
-                    targetTower = findTowerAt(row - 1, col - 1);
                 }
 
                 double upgradeCost = 100;
