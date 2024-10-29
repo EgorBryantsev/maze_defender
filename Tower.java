@@ -67,6 +67,8 @@ public class Tower {
             Projectile p = projectiles.get(i);
             p.move();
 
+            boolean projectileRemoved = false;
+
             if (p.isExpired()) {
                 projectiles.remove(i);
                 continue;
@@ -77,32 +79,38 @@ public class Tower {
                 if (isHitting(p, enemy)) {
                     enemy.takeDamage(damage);
                     projectiles.remove(i);
+                    projectileRemoved = true;
                     break;
                 }
+            }
+
+            if (projectileRemoved) {
+                continue;  // Skip further processing for this projectile
             }
 
             // Remove projectiles that went too far
             if (isProjectileOutOfRange(p)) {
                 projectiles.remove(i);
+                continue;
             }
         }
     }
 
     private void shootSpinningAttack() {
         // Center coordinates for bullets based on the actual middle of the range oval
-        int originX = ovalX + (range * gamePanel.calculatedTileSize);
-        int originY = ovalY + (range * gamePanel.calculatedTileSize);
+        double originX = getTowerX();
+        double originY = getTowerY();
         int projectileSpeed = 10; // Adjust as needed
-    
+
         // Number of projectiles (e.g., 8 for every 45 degrees)
         int projectilesCount = 8;
         double angleIncrement = 360.0 / projectilesCount;
-    
+
         for (int i = 0; i < projectilesCount; i++) {
             double angle = Math.toRadians(i * angleIncrement);
-            int targetX = originX + (int)(Math.cos(angle) * range * gamePanel.calculatedTileSize);
-            int targetY = originY + (int)(Math.sin(angle) * range * gamePanel.calculatedTileSize);
-    
+            double targetX = originX + Math.cos(angle) * range * gamePanel.calculatedTileSize;
+            double targetY = originY + Math.sin(angle) * range * gamePanel.calculatedTileSize;
+
             // Create projectile originating from the center of the oval
             Projectile p = new Projectile(
                     originX,
@@ -115,27 +123,27 @@ public class Tower {
             projectiles.add(p);
         }
     }
-    
+
     private boolean isHitting(Projectile p, Enemy e) {
         double[] pos = e.getPosition(gamePanel.calculatedTileSize, gamePanel.getXOffset(), gamePanel.getYOffset());
-        int dx = p.x - (int)pos[0];
-        int dy = p.y - (int)pos[1];
-        return Math.sqrt(dx * dx + dy * dy) < 20;  // 20 pixels hit radius
+        double dx = p.x - pos[0];
+        double dy = p.y - pos[1];
+        return (dx * dx + dy * dy) < (20 * 20);
     }
-    
+
     private boolean isProjectileOutOfRange(Projectile p) {
-        int dx = p.x - getTowerX();
-        int dy = p.y - getTowerY();
+        double dx = p.x - getTowerX();
+        double dy = p.y - getTowerY();
         return Math.sqrt(dx * dx + dy * dy) > range * gamePanel.calculatedTileSize;
     }
 
     // Get tower position (center of the tower)
-    private int getTowerX() {
-        return gamePanel.getXOffset() + (col * gamePanel.calculatedTileSize) + (gamePanel.calculatedTileSize / 2);
+    private double getTowerX() {
+        return gamePanel.getXOffset() + (col * gamePanel.calculatedTileSize) + gamePanel.calculatedTileSize; // Center X of the tower
     }
 
-    private int getTowerY() {
-        return gamePanel.getYOffset() + (row * gamePanel.calculatedTileSize) + (gamePanel.calculatedTileSize / 2);
+    private double getTowerY() {
+        return gamePanel.getYOffset() + (row * gamePanel.calculatedTileSize) + gamePanel.calculatedTileSize; // Center Y of the tower
     }
 
     public void draw(Graphics g) {

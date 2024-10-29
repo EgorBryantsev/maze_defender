@@ -64,6 +64,9 @@ public class GamePanel extends JPanel {
 
         // Now call reset for other initializations
         resetGame();
+        // Ensure updateSize is called after the panel is visible
+        SwingUtilities.invokeLater(this::updateSize);
+
         setupEventListeners();
     }
 
@@ -206,10 +209,10 @@ public class GamePanel extends JPanel {
     /**
      * Update the panel size based on the current window size.
      */
-    private void updateSize() {
-        panelWidth = (int) (getWidth() * 0.9);  // 90% of window width
-        panelHeight = (int) (getHeight() * 0.8);  // 90% of window height  
-        calculatedTileSize = Math.min(panelWidth / Maze.COLS, panelHeight / Maze.ROWS);  // Adjust tile size
+    public void updateSize() {
+        panelWidth = Math.max(1, (int) (getWidth() * 0.9));
+        panelHeight = Math.max(1, (int) (getHeight() * 0.8));
+        calculatedTileSize = Math.max(1, Math.min(panelWidth / Maze.COLS, panelHeight / Maze.ROWS));
 
         this.xOffset = (getWidth() - panelWidth) / 2;
         this.yOffset = (getHeight() - panelHeight) / 2;
