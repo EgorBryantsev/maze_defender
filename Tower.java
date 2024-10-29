@@ -20,6 +20,13 @@ public class Tower {
     public String costMessage;
     public static int towerLevel2;
 
+    private int burstShotsFired = 0;
+    private int burstCooldown = 0;
+    private static final int BURST_SIZE = 3;       // n burst shots
+    private static final int BURST_INTERVAL = 10;  // frames between burst shots
+    private static final int BURST_COOLDOWN_TIME = 5; // frames between burst
+
+
     private int shootTimer = 0;
     private ArrayList<Projectile> projectiles;
     private int spinAngle = 0;
@@ -56,6 +63,14 @@ public class Tower {
 
             // Determine shooting behavior based on tower level
             switch (towerLevel) {
+                case 1:
+                case 2:
+                    shootAtNearestEnemy();
+                    break;
+                case 3:
+                case 4:
+                    shootBurstAtNearestEnemy();
+                    break;
                 default:
                     shootSpinningAttack();
                     break;
@@ -94,6 +109,99 @@ public class Tower {
                 continue;
             }
         }
+    }
+
+    private void shootBurstAtNearestEnemy() {
+        if (burstCooldown > 0) {
+            burstCooldown--;
+            return;
+        }
+
+        if (burstShotsFired < BURST_SIZE) {
+            Enemy targetEnemy = findNearestEnemy();
+
+            if (targetEnemy != null) {
+                double originX = getTowerX();
+                double originY = getTowerY();
+
+                double[] enemyPos = targetEnemy.getPosition(
+                        gamePanel.calculatedTileSize,
+                        gamePanel.getXOffset(),
+                        gamePanel.getYOffset()
+                );
+
+                Projectile p = new Projectile(
+                        originX,
+                        originY,
+                        enemyPos[0],
+                        enemyPos[1],
+                        12,
+                        damage
+                );
+
+                projectiles.add(p);
+                gamePanel.addProjectile(p);
+            }
+
+            burstShotsFired++;
+        } else {
+            burstShotsFired = 0;
+            burstCooldown = BURST_COOLDOWN_TIME;
+        }
+    }
+
+
+    private void shootAtNearestEnemy() {
+        Enemy targetEnemy = findNearestEnemy();
+
+        if (targetEnemy != null) {
+            double originX = getTowerX();
+            double originY = getTowerY();
+
+            double[] enemyPos = targetEnemy.getPosition(
+                    gamePanel.calculatedTileSize,
+                    gamePanel.getXOffset(),
+                    gamePanel.getYOffset()
+            );
+
+            Projectile p = new Projectile(
+                    originX,
+                    originY,
+                    enemyPos[0],
+                    enemyPos[1],
+                    10,
+                    damage //
+            );
+
+            projectiles.add(p);
+            gamePanel.addProjectile(p);
+        }
+    }
+
+    private Enemy findNearestEnemy() {
+        Enemy nearestEnemy = null;
+        double nearestDistanceSq = Double.MAX_VALUE;
+
+        for (Enemy enemy : GamePanel.getEnemies()) {
+            double[] enemyPos = enemy.getPosition(
+                    gamePanel.calculatedTileSize,
+                    gamePanel.getXOffset(),
+                    gamePanel.getYOffset()
+            );
+
+            double dx = enemyPos[0] - getTowerX();
+            double dy = enemyPos[1] - getTowerY();
+            double distanceSq = dx * dx + dy * dy;
+
+            if (distanceSq <= (range * gamePanel.calculatedTileSize) * (range * gamePanel.calculatedTileSize)) {
+                if (distanceSq < nearestDistanceSq) {
+                    nearestDistanceSq = distanceSq;
+                    nearestEnemy = enemy;
+                }
+            }
+        }
+
+        return nearestEnemy;
     }
 
     private void shootSpinningAttack() {
@@ -170,19 +278,11 @@ public class Tower {
     
     // Update tower stats when upgraded
     public void upgradeTower() {
-        if (towerLevel <= 5) {
-            speed = towerLevel * 2;  // Shots per second
-        }
         if (towerLevel <= 4) {
-            range = towerLevel * 2;  // Range in tiles
-        } else if (towerLevel >= 8) {
-            range += 0.25;
+            speed = towerLevel;  // Shots per second
         }
-        if (towerLevel <= 6) {
-            damage = towerLevel * 5;  // Damage per shot
-        }
-        if (towerLevel == 10) {
-            damage += towerLevel * 5;  // Damage per shot
+        if (towerLevel == 6) {
+            damage += towerLevel * 2;  // Damage per shot
         }
         cost = 100 + 100 * costMultiplier;
     }
@@ -193,7 +293,7 @@ public class Tower {
             GameState.money -= cost;
             towerLevel++;
             towerLevel2 = towerLevel;
-            costMultiplier += 3;
+            costMultiplier += 1;
             upgradeTower();  // Update tower attributes based on new level
             if (newState > 7) newState = 8;
             Maze.maze[row][col] = newState;
