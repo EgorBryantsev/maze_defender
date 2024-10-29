@@ -4,7 +4,7 @@ import java.awt.Graphics;
 public class Enemy {
     private int currentPathIndex;
     private double progress;
-    private int hp;
+    public int hp;
     private final int maxHp;
     private final double speed;
     private final int points;
@@ -110,4 +110,8 @@ public class Enemy {
     
     public int getPoints() { return points; }
     public double getMoney() { return money; }
+
+    public int getHealth() {
+        return hp;
+    }
 }

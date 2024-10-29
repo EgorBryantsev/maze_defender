@@ -4,17 +4,18 @@ import java.util.*;
 import javax.swing.JOptionPane;
 
 public class Tower {
-    private GamePanel gamePanel;
+    public GamePanel gamePanel;
     public int speed;
     public int damage;
     public int range;
     private static int baseTowerLevel = 0;  // Changed to start at level 1
     public int towerLevel;  // Instance-specific tower level
+    public String towerType;
     private boolean confirmationPending = false;
     private double costMultiplier = 0;
-    private double cost = 0;
-    private int row;  // Row position in the maze
-    private int col;  // Column position in the maze
+    double cost = 0;
+    int row;  // Row position in the maze
+    int col;  // Column position in the maze
     public int ovalX;
     public int ovalY;
     public String costMessage;
@@ -27,8 +28,8 @@ public class Tower {
     private static final int BURST_COOLDOWN_TIME = 5; // frames between burst
 
 
-    private int shootTimer = 0;
-    private ArrayList<Projectile> projectiles;
+    public int shootTimer = 0;
+    ArrayList<Projectile> projectiles;
     private int spinAngle = 0;
     
     public Tower(GamePanel gamePanel, int row, int col) {
@@ -38,6 +39,7 @@ public class Tower {
         this.col = col;
         this.towerLevel = baseTowerLevel;
         this.towerLevel2 = towerLevel;
+        this.towerType = "Basic";
         upgradeTower();  // Set initial stats
     }
 
@@ -62,22 +64,12 @@ public class Tower {
             shootTimer = 0;  // Reset timer
 
             // Determine shooting behavior based on tower level
-            switch (towerLevel) {
-                case 1:
-                case 2:
-                    shootAtNearestEnemy();
-                    break;
-                case 3:
-                case 4:
-                    shootBurstAtNearestEnemy();
-                    break;
-                default:
-                    shootSpinningAttack();
-                    break;
-            }
         }
 
-        // Update all projectiles
+        updateProjectiles();
+    }
+
+    protected void updateProjectiles() {
         for (int i = projectiles.size() - 1; i >= 0; i--) {
             Projectile p = projectiles.get(i);
             p.move();
@@ -108,6 +100,22 @@ public class Tower {
                 projectiles.remove(i);
                 continue;
             }
+        }
+    }
+
+    protected void shoot() {
+        switch (towerLevel) {
+            case 1:
+            case 2:
+                shootAtNearestEnemy();
+                break;
+            case 3:
+            case 4:
+                shootBurstAtNearestEnemy();
+                break;
+            default:
+                shootSpinningAttack();
+                break;
         }
     }
 
@@ -246,11 +254,11 @@ public class Tower {
     }
 
     // Get tower position (center of the tower)
-    private double getTowerX() {
+    double getTowerX() {
         return gamePanel.getXOffset() + (col * gamePanel.calculatedTileSize) + gamePanel.calculatedTileSize; // Center X of the tower
     }
 
-    private double getTowerY() {
+    double getTowerY() {
         return gamePanel.getYOffset() + (row * gamePanel.calculatedTileSize) + gamePanel.calculatedTileSize; // Center Y of the tower
     }
 
@@ -278,11 +286,19 @@ public class Tower {
     
     // Update tower stats when upgraded
     public void upgradeTower() {
-        if (towerLevel <= 4) {
-            speed = towerLevel;  // Shots per second
+        if (towerLevel <= 2) {
+            speed = towerLevel * 2;  // Shots per second
         }
-        if (towerLevel == 6) {
-            damage += towerLevel * 2;  // Damage per shot
+        if (towerLevel <= 4) {
+            range = towerLevel * 2;  // Range in tiles
+        } else if (towerLevel >= 8) {
+            range += 0.25;
+        }
+        if (towerLevel <= 6) {
+            damage = towerLevel * 2;  // Damage per shot
+        }
+        if (towerLevel == 10) {
+            damage += towerLevel * 5;  // Damage per shot
         }
         cost = 100 + 100 * costMultiplier;
     }
@@ -314,6 +330,9 @@ public class Tower {
 
             if (gamePanel.isBuilding(row, col) || gamePanel.isBuilding(row - 1, col) ||
                     gamePanel.isBuilding(row, col - 1) || gamePanel.isBuilding(row - 1, col - 1)) {
+                String[] options = {"Basic Tower", "Sniper Tower"};
+
+
 
                 Tower targetTower = null;
 
@@ -333,16 +352,19 @@ public class Tower {
                     upgradeCost = 100 + 100 * targetTower.costMultiplier;
                 }
 
-                // Show a confirmation dialog with the upgrade cost
-                int confirm = JOptionPane.showConfirmDialog(
+                int choice = JOptionPane.showOptionDialog(
                         gamePanel,
-                        "Upgrade cost: " + upgradeCost + "\nProceed with upgrade?",
-                        "Upgrade Confirmation",
-                        JOptionPane.YES_NO_OPTION
+                        "Choose a tower to build:",
+                        "Build Tower",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        options,
+                        options[0]
                 );
 
 
-                if (confirm == JOptionPane.YES_OPTION) {
+                if (choice == 0) {
                     if (gamePanel.isBuilding(row, col)) {
                         Tower existingTower = findTowerAt(row, col);
                         if (existingTower != null) {
@@ -374,11 +396,22 @@ public class Tower {
                     }
                     gamePanel.repaint();
 
+                    } else if (choice == 1) {
+                    addNewSniperTower(row, col);
                     }
                 }
             }
 
-        
+        private void addNewSniperTower(int row, int col) {
+            Tower newTower = new SniperTower(gamePanel, row, col);
+            if (GameState.money >= newTower.cost) {
+                GameState.money -= newTower.cost;
+                gamePanel.addTower(newTower);
+            } else {
+                JOptionPane.showMessageDialog(gamePanel, "Not enough money to build Sniper Tower!", "Build Failed", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+
         private void addNewTower(int row, int col) {
             Tower newTower = new Tower(gamePanel, row, col);
             gamePanel.addTower(newTower);
