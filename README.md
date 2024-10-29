@@ -22,6 +22,8 @@ Because of this, we were able to work on the project more efficiently and quickl
 ## How to play
 When you start the game a maze will be generated and enemies will begin to spawn. There are a number of 2x2 squares in the maze which can be clicked on to upgrade them, which will create towers which will shoot at the enemies (because of how the maze is generated, sometimes towers are far from the enemies' path. In this case, you can choose to build a sniper tower instead which is lower but has no range limit). Eliminating enemies grants money, which can be used to upgrade towers. Your goal is to survive as long as possible.
 
+Towers must be clicked in the top left tile to upgrade.
+
 ## Sources
 The A* Search Algorithm - https://www.geeksforgeeks.org/a-search-algorithm/
 A* pathfinding - https://www.youtube.com/watch?v=-L-WgKMFuhE
