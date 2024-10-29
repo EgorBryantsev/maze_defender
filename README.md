@@ -4,6 +4,8 @@ This project is a tower defense game developed in Java using Swing, where you de
 
 This project is a learning exercise in implementing two new topics: A* pathfinding for enemy movement and Git for version control.
 
+https://github.com/EgorBryantsev/maze_defender
+
 ## Advanced topics
 ### A* Pathfinding
 The goal was to implement this algorithm to allow enemies to move through a randomly generated maze. Enemies have a start and end point given, and calculate the optimal path using this.
@@ -18,7 +20,7 @@ We learned how to use this from the GitHub "beginners guide to Git", and the Git
 Because of this, we were able to work on the project more efficiently and quickly.
 
 ## How to play
-When you start the game a maze will be generated and enemies will begin to spawn. There are a number of 2x2 squares in the maze which can be clicked on to upgrade them, which will create towers which will shoot at the enemies. Eliminating enemies grants money, which can be used to upgrade towers. You goal is to survive as long as possible.
+When you start the game a maze will be generated and enemies will begin to spawn. There are a number of 2x2 squares in the maze which can be clicked on to upgrade them, which will create towers which will shoot at the enemies (because of how the maze is generated, sometimes towers are far from the enemies' path. In this case, you can choose to build a sniper tower instead which is lower but has no range limit). Eliminating enemies grants money, which can be used to upgrade towers. Your goal is to survive as long as possible.
 
 ## Sources
 The A* Search Algorithm - https://www.geeksforgeeks.org/a-search-algorithm/
