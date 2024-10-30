@@ -7,7 +7,7 @@ public class SniperTower extends Tower {
 
     public SniperTower(GamePanel gamePanel, int row, int col) {
         super(gamePanel, row, col);
-        this.towerType = "Sniper";
+        this.towerType = "SniperTower";
         this.towerLevel = 1;
         this.speed = 1;
         this.damage = 50;

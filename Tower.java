@@ -60,8 +60,7 @@ public class Tower {
 
         if (shootTimer >= 60 / speed) {  // Assuming 60 frames per second
             shootTimer = 0;  // Reset timer
-
-            // Determine shooting behavior based on tower level
+            shoot();
         }
 
         updateProjectiles();
