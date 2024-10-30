@@ -67,6 +67,10 @@ public class Round {
                 possibleTypes.add(EnemyTypes.MONSTER);
             }
 
+            if (remainingPoints >= EnemyTypes.BULLET.points() && GamePanel.currentRoundNumber >= EnemyTypes.BULLET.fromRound()) {
+                possibleTypes.add(EnemyTypes.BULLET);
+            }
+
             if (possibleTypes.isEmpty()) {
                 break; 
             }
