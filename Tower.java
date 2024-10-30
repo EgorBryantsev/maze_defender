@@ -40,7 +40,6 @@ public class Tower {
         this.towerLevel = baseTowerLevel;
         this.towerLevel2 = towerLevel;
         this.towerType = "Basic";
-        upgradeTower();  // Set initial stats
     }
 
     public int getRow() {
@@ -213,7 +212,7 @@ public class Tower {
         // Center coordinates for bullets based on the actual middle of the range oval
         double originX = getTowerX();
         double originY = getTowerY();
-        int projectileSpeed = 10; // Adjust as needed
+        int projectileSpeed = 5; // Adjust as needed
 
         // Number of projectiles
         int projectilesCount = 8;
@@ -296,26 +295,41 @@ public class Tower {
         if (towerLevel == 10) {
             damage += towerLevel * 5;  // Damage per shot
         }
+        // Update cost for next upgrade
         cost = 100 + 100 * costMultiplier;
     }
 
-    private void buildingNewLevel(int row, int col) {
-        int newState = Maze.maze[row][col] + 1;
-        if (GameState.money >= cost) {
-            GameState.money -= cost;
-            towerLevel++;
+
+    protected void buildingNewLevel(int row, int col) {
+        double upgradeCost = getUpgradeCost();
+
+        if (GameState.money >= upgradeCost) {
+            GameState.money -= upgradeCost;
+
+            if (towerLevel == 0) {
+                // Building a new tower
+                towerLevel = 1;
+            } else {
+                // Upgrading existing tower
+                towerLevel++;
+            }
+
             towerLevel2 = towerLevel;
             costMultiplier += 1;
             upgradeTower();  // Update tower attributes based on new level
+
+            // Update maze state if needed
+            int newState = Maze.maze[row][col] + 1;
             if (newState > 7) newState = 8;
             Maze.maze[row][col] = newState;
             Maze.maze[row + 1][col] = newState;
             Maze.maze[row][col + 1] = newState;
             Maze.maze[row + 1][col + 1] = newState;
         } else {
-            JOptionPane.showMessageDialog(gamePanel, "Not enough money to upgrade!", "Upgrade Failed", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(gamePanel, "Not enough money!", "Action Failed", JOptionPane.WARNING_MESSAGE);
         }
     }
+
 
     public class BuildingClicked extends MouseAdapter {
         @Override
@@ -324,71 +338,80 @@ public class Tower {
             int row = (e.getY() - (gamePanel.getHeight() - gamePanel.panelHeight) / 2) / gamePanel.calculatedTileSize;
 
             if (gamePanel.isBuilding(row, col)) {
-                String[] options = {"Basic Tower", "Sniper Tower"};
-
-
-
-                Tower targetTower = null;
-
-                // Find the existing tower that was clicked
-                if (gamePanel.isBuilding(row, col)) {
-                    targetTower = findTowerAt(row, col);
-                }
-
-                double upgradeCost = 100;
-                if (targetTower != null) {
-                    upgradeCost = 100 + 100 * targetTower.costMultiplier;
-                }
-
-                int choice = JOptionPane.showOptionDialog(
-                        gamePanel,
-                        "Choose a tower to build:",
-                        "Build Tower",
-                        JOptionPane.DEFAULT_OPTION,
-                        JOptionPane.INFORMATION_MESSAGE,
-                        null,
-                        options,
-                        options[0]
-                );
-
-
-                if (choice == 0) {
-                    if (gamePanel.isBuilding(row, col)) {
-                        Tower existingTower = findTowerAt(row, col);
-                        if (existingTower != null) {
-                            existingTower.buildingNewLevel(row, col);
-                        } else {
-                            addNewTower(row, col);
+                Tower existingTower = findExistingTower(row, col);
+                if (existingTower != null) {
+                    if (existingTower.towerLevel > 0) {
+                        // Tower is already built, show upgrade confirmation
+                        double upgradeCost = existingTower.getUpgradeCost();
+                        int result = JOptionPane.showConfirmDialog(
+                                gamePanel,
+                                "Upgrade tower for $" + upgradeCost + "?",
+                                "Upgrade Tower",
+                                JOptionPane.YES_NO_OPTION
+                        );
+                        if (result == JOptionPane.YES_OPTION) {
+                            existingTower.buildingNewLevel(existingTower.getRow(), existingTower.getCol());
+                            gamePanel.repaint();
                         }
-                    } else if (gamePanel.isBuilding(row - 1, col)) {
-                        Tower existingTower = findTowerAt(row - 1, col);
-                        if (existingTower != null) {
-                            existingTower.buildingNewLevel(row - 1, col);
-                        } else {
-                            addNewTower(row - 1, col);
-                        }
-                    } else if (gamePanel.isBuilding(row, col - 1)) {
-                        Tower existingTower = findTowerAt(row, col - 1);
-                        if (existingTower != null) {
-                            existingTower.buildingNewLevel(row, col - 1);
-                        } else {
-                            addNewTower(row, col - 1);
-                        }
-                    } else if (gamePanel.isBuilding(row - 1, col - 1)) {
-                        Tower existingTower = findTowerAt(row - 1, col - 1);
-                        if (existingTower != null) {
-                            existingTower.buildingNewLevel(row - 1, col - 1);
-                        } else {
-                            addNewTower(row - 1, col - 1);
-                        }
-                    }
-                    gamePanel.repaint();
-
-                    } else if (choice == 1) {
-                    addNewSniperTower(row, col);
+                    } else {
+                        // Tower has towerLevel == 0, it's unbuilt
+                        // Show the "choose tower to build" dialog
+                        showBuildTowerDialog(row, col, existingTower);
                     }
                 }
             }
+        }
+
+        private void showBuildTowerDialog(int row, int col, Tower existingTower) {
+            String[] options = {"Basic Tower", "Sniper Tower"};
+            int choice = JOptionPane.showOptionDialog(
+                    gamePanel,
+                    "Choose a tower to build:",
+                    "Build Tower",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[0]
+            );
+            if (choice == 0) {
+                if (existingTower != null) {
+                    existingTower.buildingNewLevel(existingTower.getRow(), existingTower.getCol());
+                } else {
+                    addNewTower(row, col);
+                }
+            } else if (choice == 1) {
+                if (existingTower != null) {
+                    if (existingTower.towerLevel == 0) {
+                        // Replace the unbuilt tower with a Sniper Tower
+                        gamePanel.getTowers().remove(existingTower);
+                        addNewSniperTower(existingTower.getRow(), existingTower.getCol());
+                    } else {
+                        JOptionPane.showMessageDialog(gamePanel, "Cannot change tower type after placement.", "Action Denied", JOptionPane.WARNING_MESSAGE);
+                    }
+                } else {
+                    addNewSniperTower(row, col);
+                }
+            }
+            gamePanel.repaint();
+        }
+
+        private Tower findExistingTower(int row, int col) {
+            Tower existingTower = findTowerAt(row, col);
+            if (existingTower != null) {
+                return existingTower;
+            }
+            existingTower = findTowerAt(row - 1, col);
+            if (existingTower != null) {
+                return existingTower;
+            }
+            existingTower = findTowerAt(row, col - 1);
+            if (existingTower != null) {
+                return existingTower;
+            }
+            existingTower = findTowerAt(row - 1, col - 1);
+            return existingTower;
+        }
 
         private void addNewSniperTower(int row, int col) {
             Tower newTower = new SniperTower(gamePanel, row, col);
@@ -414,6 +437,10 @@ public class Tower {
             }
             return null;
         }
+    }
+
+    protected double getUpgradeCost() {
+        return cost;
     }
 
     public Color getLevelColor() {

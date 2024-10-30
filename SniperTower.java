@@ -94,14 +94,23 @@ public class SniperTower extends Tower {
 
     @Override
     public void upgradeTower() {
-        if (GameState.money >= upgradeCost) {
-            GameState.money -= upgradeCost;
-            towerLevel++;
-            damage += 25;   // increase damage
-            speed += 0.5;   // slightly increase firing rate
-            upgradeCost += 100; // increase cost for next upgrade
+        // Initialize or upgrade tower stats based on towerLevel
+        if (towerLevel == 1) {
+            // Building the tower
+            speed = 1;
+            damage = 50;
+            range = Integer.MAX_VALUE;
         } else {
-            JOptionPane.showMessageDialog(gamePanel, "Not enough money to upgrade!", "Upgrade Failed", JOptionPane.WARNING_MESSAGE);
+            // Upgrading the tower
+            damage += 25;   // Increase damage
+            speed += 0.5;   // Slightly increase firing rate
         }
+        // Update cost for next upgrade
+        upgradeCost += 100;
+    }
+
+    @Override
+    protected double getUpgradeCost() {
+        return upgradeCost;
     }
 }
