@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.awt.*;
 
 public class SniperTower extends Tower {
@@ -50,7 +49,7 @@ public class SniperTower extends Tower {
                     originY,
                     enemyPos[0],
                     enemyPos[1],
-                    15,     // Projectile speed
+                    80,     // Projectile speed
                     damage  // Damage of the projectile
             );
 
@@ -97,16 +96,16 @@ public class SniperTower extends Tower {
         // Initialize or upgrade tower stats based on towerLevel
         if (towerLevel == 1) {
             // Building the tower
-            speed = 1;
-            damage = 50;
+            speed = 0.5;
+            damage = 30;
             range = Integer.MAX_VALUE;
         } else {
             // Upgrading the tower
-            damage += 25;   // Increase damage
-            speed += 0.5;   // Slightly increase firing rate
+            damage += 10;   // Increase damage
+            speed += 0.2;   // Slightly increase firing rate
         }
         // Update cost for next upgrade
-        upgradeCost += 100;
+        upgradeCost += 100 * towerLevel;
     }
 
     @Override

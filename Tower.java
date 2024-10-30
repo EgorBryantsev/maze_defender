@@ -5,7 +5,7 @@ import javax.swing.JOptionPane;
 
 public class Tower {
     public GamePanel gamePanel;
-    public int speed;
+    public double speed;
     public int damage;
     public int range;
     private static int baseTowerLevel = 0;  // Changed to start at level 1
@@ -25,7 +25,7 @@ public class Tower {
     private int burstCooldown = 0;
     private static final int BURST_SIZE = 3;       // n burst shots
     private static final int BURST_INTERVAL = 10;  // frames between burst shots
-    private static final int BURST_COOLDOWN_TIME = 5; // frames between burst
+    private static final int BURST_COOLDOWN_TIME = 3; // frames between burst
 
 
     public int shootTimer = 0;
@@ -140,7 +140,7 @@ public class Tower {
                         enemyPos[0],
                         enemyPos[1],
                         12,
-                        damage
+                        damage + 1
                 );
 
                 projectiles.add(p);
